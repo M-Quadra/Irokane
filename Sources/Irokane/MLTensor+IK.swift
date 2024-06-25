@@ -52,7 +52,9 @@ public extension MLTensor {
         switch true {
         case self.scalarType == Float16.self:
             await MLMultiArray(self.shapedArray(of: Float16.self))
-        default: throw .todo()
+        case self.scalarType == Float32.self:
+            await MLMultiArray(self.shapedArray(of: Float32.self))
+        default: throw .todo("\(self.scalarType)")
         }
     }
 }

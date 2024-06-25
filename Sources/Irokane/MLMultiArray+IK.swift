@@ -1,6 +1,6 @@
 //
 //  MLMultiArray+IK.swift
-//  
+//
 //
 //  Created by m_quadra on 2024/6/23.
 //
@@ -10,33 +10,34 @@ import MetalPerformanceShadersGraph
 
 extension MLMultiArray {
     
-    var mpsDataType: MPSDataType { get throws(Errors) {
-        switch self.dataType {
-        case .float16: .float16
-        case .float32: .float32
-        default: throw .todo()
-        }
-    }}
+    consuming func toMPS(
+        graph: consuming MPSGraph,
+        name: consuming String? = nil
+    ) async throws(Errors) -> (tensor: MPSGraphTensor, data: MPSGraphTensorData) {
+        let data = try await self.toTensorData()
+        let ts = graph.placeholder(shape: data.shape, dataType: data.dataType, name: name)
+        return (ts, data)
+    }
+}
+
+// MARK: - Private
+fileprivate extension MLMultiArray {
     
     func toTensorData() async throws(Errors) -> MPSGraphTensorData {
-        guard let device: MTLDevice = MTLCreateSystemDefaultDevice() else { throw .msg("Failed to create MTLDevice") }
-        
-        switch self.dataType {
-        case .float16:
-            let buf: MTLBuffer? = self.withUnsafeBytes { ptr in
-                guard let dst = ptr.baseAddress else { return nil }
-                return device.makeBuffer(bytes: consume dst, length: MemoryLayout<Float16>.size * self.count)
-            }
-            guard let buf = consume buf else { throw .msg("Failed to create MTLBuffer") }
-            return MPSGraphTensorData(consume buf, shape: self.shape, dataType: .float16)
-        case .float32:
-            let buf: MTLBuffer? = self.withUnsafeBytes { ptr in
-                guard let dst = ptr.baseAddress else { return nil }
-                return device.makeBuffer(bytes: consume dst, length: MemoryLayout<Float32>.size * self.count)
-            }
-            guard let buf = consume buf else { throw .msg("Failed to create MTLBuffer") }
-            return MPSGraphTensorData(consume buf, shape: self.shape, dataType: .float32)
+        let (len, dtype): (Int, MPSDataType) = switch self.dataType {
+        case .float16: (MemoryLayout<Float16>.size * self.count, .float16)
+        case .float32: (MemoryLayout<Float32>.size * self.count, .float32)
         default: throw .todo()
         }
+        
+        let buf: MTLBuffer? = self.withUnsafeBytes { ptr in
+            guard let dst = ptr.baseAddress,
+                  let device = MTLCreateSystemDefaultDevice()
+            else { return nil }
+            return device.makeBuffer(bytes: dst, length: len)
+        }
+        guard let buf = consume buf else { throw .msg("Failed to create MTLBuffer") }
+        
+        return MPSGraphTensorData(consume buf, shape: self.shape, dataType: dtype)
     }
 }
