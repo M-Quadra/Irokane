@@ -32,6 +32,12 @@ extension MLTensor: Tensorable {
                     guard let dst = ptr.baseAddress else { return nil }
                     return device.makeBuffer(bytes: dst, length: len)
                 }
+        case .float32:
+            await self.shapedArray(of: Float32.self)
+                .withUnsafeShapedBufferPointer { ptr, shape, strides in
+                    guard let dst = ptr.baseAddress else { return nil }
+                    return device.makeBuffer(bytes: dst, length: len)
+                }
         default: throw .todo("\(self.scalarType)")
         }
         guard let buf = consume buf else { throw .msg("Failed to create MTLBuffer") }
