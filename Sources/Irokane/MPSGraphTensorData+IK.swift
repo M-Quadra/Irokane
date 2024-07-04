@@ -11,7 +11,7 @@ import MetalPerformanceShadersGraph
 extension MPSGraphTensorData {
     
     @available(iOS 18.0, *)
-    func toTensor() throws(Errors) -> MLTensor {
+    func toMLTensor() throws(Errors) -> MLTensor {
         let shape = self.shape.map { $0.intValue }
         let count = shape.reduce(1, { $0 * $1 })
         switch self.dataType {
@@ -23,7 +23,11 @@ extension MPSGraphTensorData {
             var arr = [Float32](repeating: 0, count: count)
             self.mpsndarray().readBytes(&arr, strideBytes: nil)
             return MLTensor(shape: consume shape, scalars: consume arr)
-        default: throw .todo()
+        case .int32:
+            var arr = [Int32](repeating: 0, count: count)
+            self.mpsndarray().readBytes(&arr, strideBytes: nil)
+            return MLTensor(shape: consume shape, scalars: consume arr)
+        default: throw .todo("\(self.dataType)")
         }
     }
     
@@ -31,7 +35,8 @@ extension MPSGraphTensorData {
         let dtype: MLMultiArrayDataType = switch self.dataType {
         case .float16: .float16
         case .float32: .float32
-        default: throw Errors.todo()
+        case .int32: .int32
+        default: throw Errors.todo("\(self.dataType)")
         }
         
         let arr = try MLMultiArray(shape: self.shape, dataType: dtype)

@@ -14,6 +14,7 @@ extension MLMultiArray {
         let (msize, dtype): (Int, MPSDataType) = switch self.dataType {
         case .float16: (MemoryLayout<Float16>.size, .float16)
         case .float32: (MemoryLayout<Float32>.size, .float32)
+        case .int32: (MemoryLayout<Int32>.size, .int32)
         default: throw .todo("\(self.dataType)")
         }
         let len = self.count * msize
