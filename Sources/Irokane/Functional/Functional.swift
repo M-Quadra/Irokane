@@ -14,8 +14,8 @@ public struct Functional {
 public extension Functional {
     
     static func pad(_ input: Graph, pad: (left: Int, right: Int)) -> Graph {
-        let graph = input.graph, src = input.tensor
-        guard let rank = src.shape?.count, rank > 0 else {
+        let graph = input.graph, x = input.tensor
+        guard let rank = x.shape?.count, rank > 0 else {
             assertionFailure("input.shape is nil")
             return input
         }
@@ -24,7 +24,15 @@ public extension Functional {
         var right = [NSNumber](repeating: 0, count: rank)
         right[rank - 1] = pad.right as NSNumber
 
-        let dst = graph.padTensor(src, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
-        return Graph(tensor: consume dst, graph: consume graph)
+        let y = graph.padTensor(x, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
+    
+    static func softmax(_ input: Graph, dim: Int) -> Graph {
+        let graph = input.graph, x = input.tensor
+        assert(x.dataType != .int32)
+        
+        let y = graph.softMax(with: x, axis: dim, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
     }
 }
