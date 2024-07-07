@@ -1,6 +1,6 @@
 //
 //  Graph+GetItem.swift
-//  
+//
 //
 //  Created by m_quadra on 2024/7/5.
 //
@@ -10,8 +10,14 @@ import Foundation
 public extension Graph {
     
     subscript(_: (UnboundedRange_) -> (), range: PartialRangeUpTo<Int>) -> Graph {
-        let ts = graph.sliceTensor(self.tensor, dimension: -1, start: 0, length: range.upperBound, name: nil)
-        return Graph(tensor: consume ts, graph: self.graph)
+        let graph = self.graph, x = self.tensor
+        var len = range.upperBound
+        if len < 0 {
+            len += x.shape?.last?.intValue ?? 0
+        }
+        
+        let y = graph.sliceTensor(self.tensor, dimension: -1, start: 0, length: len, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
     }
     
     subscript(_: (UnboundedRange_) -> (), range: Range<Int>) -> Graph {

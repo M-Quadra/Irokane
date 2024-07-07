@@ -35,4 +35,30 @@ public extension Functional {
         let y = graph.softMax(with: x, axis: dim, name: nil)
         return Graph(tensor: consume y, graph: consume graph)
     }
+    
+    static func softplus(_ input: Graph, beta: Int = 1, threshold: Double = 20) -> Graph {
+        let graph = input.graph, x = input.tensor
+        let b = graph.constant(Double(beta), dataType: x.dataType)
+        let t = graph.constant(threshold, dataType: x.dataType)
+        assert(x.dataType != .int32)
+        
+        let xb = graph.multiplication(x, b, name: nil)
+        let m = graph.lessThanOrEqualTo(xb, t, name: nil)
+        
+        let m0 = graph.cast(m, to: x.dataType, name: nil)
+        let xb0 = graph.multiplication(xb, m0, name: nil)
+        let exp = graph.exponent(with: xb0, name: nil)
+        let exp0 = graph.addition(exp, m0, name: nil)
+        let log = graph.logarithm(with: exp0, name: nil)
+        let log0 = graph.division(log, b, name: nil)
+        
+        let m1 = graph.logicalNOR(m, m, name: nil)
+        let x0 = graph.multiplication(
+            x, graph.cast(m1, to: x.dataType, name: nil),
+            name: nil
+        )
+        
+        let y = graph.addition(log0, x0, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
 }

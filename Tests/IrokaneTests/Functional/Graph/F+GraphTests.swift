@@ -61,4 +61,34 @@ struct FunctionalGraphTests {
             0.09, 0.2448, 0.665
         ])
     }
+    
+    @Test func softplus() async throws {
+        let xArr = try MLMultiArray(shape: [3], dataType: .float16)
+        xArr.withUnsafeMutableBytes { ptr, strides in
+            let arr = (0..<3).map { Float16($0) + 0.5 }
+            memcpy(ptr.baseAddress!, arr, MemoryLayout<Float16>.size * xArr.count)
+        }
+
+        let graph = MPSGraph()
+        let (x, xData) = try xArr.ik.toGraph(at: graph)
+
+        let y = F.softplus(x, beta: 2, threshold: 2)
+
+        guard let yData = graph.run(
+            feeds: [
+                x.tensor: xData,
+            ],
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3])
+
+        let cnt = yData.shape.map { $0.intValue }.reduce(1, *)
+        let arr = try yData.toMLMultiArray().withUnsafeBytes { ptr in
+            var arr = [Float16](repeating: -1, count: cnt)
+            memcpy(&arr, ptr.baseAddress!, MemoryLayout<Float16>.size * cnt)
+            return arr
+        }
+        #expect(arr == [0.6567, 1.5, 2.5])
+    }
 }

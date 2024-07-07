@@ -82,4 +82,12 @@ public extension Graph {
     static func + (lhs: borrowing Graph, rhs: Double) -> Graph {
         return rhs + lhs
     }
+    
+    static func - (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        assert(graph == rhs.graph)
+
+        let y = graph.subtraction(consume x, rhs.tensor, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
 }
