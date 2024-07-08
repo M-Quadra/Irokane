@@ -114,4 +114,35 @@ struct GraphTests {
         }
         #expect(arr == [0, 1])
     }
+    
+    @Test("x[..., -1] += a")
+    func addItemEd() async throws {
+        let xArr = try MLMultiArray(shape: [3], dataType: .int32)
+        xArr.withUnsafeMutableBytes { ptr, strides in
+            let arr = (0..<3).map { Int32($0) }
+            memcpy(ptr.baseAddress!, arr, MemoryLayout<Int32>.size * xArr.count)
+        }
+        
+        let graph = MPSGraph()
+        let (x, xData) = try xArr.ik.toGraph(at: graph)
+        
+        let y = x.addItem(at: (..., -1), 1)
+        
+        guard let yData = graph.run(
+            feeds: [
+                x.tensor: xData,
+            ],
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3])
+        
+        let cnt = yData.shape.map { $0.intValue }.reduce(1, *)
+        let arr = try yData.toMLMultiArray().withUnsafeBytes { ptr in
+            var arr = [Int32](repeating: -1, count: cnt)
+            memcpy(&arr, ptr.baseAddress!, MemoryLayout<Int32>.size * cnt)
+            return arr
+        }
+        #expect(arr == [0, 1, 3])
+    }
 }

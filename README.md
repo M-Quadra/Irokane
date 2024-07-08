@@ -21,6 +21,8 @@ iOS18的`MLTensor`加速行为未知，粗略看似乎是CPU？
 - Graph
 
   MPS计算图构建，先编译再推理
+  
+  纠结是否携带`MPSTensorData`，预计实现十分甚至九分得脏，要想个更好的思路
 
 
 

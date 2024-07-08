@@ -85,4 +85,28 @@ public extension Graph {
         let y = graph.scatterNDWithData(x, updates: tensor.tensor, indices: i, batchDimensions: 0, mode: .set, name: nil)
         return Graph(tensor: y, graph: graph)
     }
+    
+    /// x[..., i] += a
+    func addItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ a: Double) -> Graph {
+        let graph = self.graph, x = self.tensor
+        guard let len = x.shape?.last?.intValue else {
+            assertionFailure("shape error")
+            return self
+        }
+        let index = range.index + (range.index < 0 ? len : 0)
+        guard 0 <= index, index <= len else {
+            assertionFailure("index error")
+            return self
+        }
+        
+        let i = graph.constant(Double(index), dataType: .int32)
+        let i0 = graph.oneHot(withIndicesTensor: i, depth: len, name: nil)
+        let i1 = graph.cast(i0, to: x.dataType, name: nil)
+        
+        let a = graph.constant(Double(a), dataType: x.dataType)
+        let a0 = graph.multiplication(i1, a, name: nil)
+        
+        let y = graph.addition(x, a0, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
 }
