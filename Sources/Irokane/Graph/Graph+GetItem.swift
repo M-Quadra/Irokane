@@ -7,6 +7,8 @@
 
 import Foundation
 
+public enum Mark {}
+
 public extension Graph {
     
     subscript(_: (UnboundedRange_) -> (), range: PartialRangeUpTo<Int>) -> Graph {
@@ -56,6 +58,13 @@ public extension Graph {
         let i = graph.nonZeroIndices(m, name: nil)
         
         let y = graph.gatherND(withUpdatesTensor: x, indicesTensor: i, batchDimensions: 0, name: nil)
+        return Graph(tensor: consume y, graph: graph)
+    }
+    
+    /// x[..., nil]
+    subscript(_: (UnboundedRange_) -> (), mark: Mark?) -> Graph {
+        let graph = self.graph, x = self.tensor
+        let y = graph.expandDims(x, axis: -1, name: nil)
         return Graph(tensor: consume y, graph: graph)
     }
 }
