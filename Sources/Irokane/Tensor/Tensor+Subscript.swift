@@ -10,7 +10,7 @@ import MetalPerformanceShadersGraph
 
 public extension Tensor {
     
-    subscript(_: (UnboundedRange_) -> (), range: PartialRangeUpTo<Int>) -> Task<Tensor, Error> { Task {
+    func getItem(_: (UnboundedRange_) -> (), _ range: PartialRangeUpTo<Int>) async throws -> Tensor {
         if #available(iOS 18.0, *),
            let ts = self.base as? MLTensor {
             return ts[..., range].toTensor()
@@ -26,5 +26,5 @@ public extension Tensor {
             targetOperations: nil
         )[consume y] else { throw Errors.msg("graph.run") }
         return yData.toTensor()
-    }}
+    }
 }
