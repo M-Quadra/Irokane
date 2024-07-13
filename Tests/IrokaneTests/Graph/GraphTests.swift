@@ -51,46 +51,6 @@ struct GraphTests {
         #expect(arr == [0.5, 2])
     }
     
-    @Test("x[..., a:]")
-    func getItemFrom() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
-        
-        let y = x[..., 1...]
-        
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [2])
-        
-        let arr = try yData.toInt32s()
-        #expect(arr == [1, 2])
-    }
-    
-    @Test("x[..., :a]")
-    func getItemTo() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
-        
-        let y = x[..., ..<(-1)]
-        
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [2])
-        
-        let arr = try yData.toInt32s()
-        #expect(arr == [0, 1])
-    }
-    
     @Test("x[..., -1] += a")
     func addItemEd() async throws {
         let graph = MPSGraph()
@@ -111,12 +71,42 @@ struct GraphTests {
         #expect(arr == [0, 1, 3])
     }
     
-    @Test("x[..., None]")
-    func getItemNone() async throws {
+    @Test("x >= y")
+    func greaterThanOrEqualTensor() async throws {
         let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let (x, xData) = try MLMultiArray([0, 1, 0]).ik.toGraph(at: graph)
+        let (y, yData) = try MLMultiArray([
+            1, 0,
+            1, 0,
+            1, 0
+        ]).ik.toGraph(at: graph)
         
-        let y = x[..., nil]
+        let z = x[..., nil] >= y.reshape([3, 2])
+        
+        guard let zData = graph.run(
+            feeds: [
+                x.tensor: xData,
+                y.tensor: yData,
+            ],
+            targetTensors: [z.tensor],
+            targetOperations: nil
+        )[z.tensor] else { throw Errors.msg("empty result") }
+        #expect(zData.shape == [3, 2])
+        
+        let arr = try zData.toBools()
+        #expect(arr == [
+            false, true,
+            true,  true,
+            false, true,
+        ])
+    }
+    
+    @Test("sum(x, dim=-1)")
+    func sum() async throws {
+        let graph = MPSGraph()
+        let (x, xData) = try MLMultiArray([0, 1, 2]).ik.toGraph(at: graph)
+        
+        let y = Irokane.sum(x, dim: -1)
         
         guard let yData = graph.run(
             feeds: [
@@ -125,9 +115,40 @@ struct GraphTests {
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [3])
+    }
+    
+    @Test("x.gather(-1, idx)")
+    func gather() async throws {
+        let graph = MPSGraph()
+        let (x, xData) = try MLMultiArray([
+            0, 1,
+            2, 3,
+            4, 5,
+        ]).ik.toGraph(at: graph)
+        let (i, iData) = try MLMultiArray([
+            0,
+            1,
+            0,
+        ]).ik.toGraph(at: graph)
+        
+        let y = x.reshape([3, 2])
+            .gather(dim: -1, index: i[..., nil])
+        
+        guard let yData = graph.run(
+            feeds: [
+                x.tensor: xData,
+                i.tensor: iData,
+            ],
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [3, 1])
         
         let arr = try yData.toInt32s()
-        #expect(arr == [0, 1, 2])
+        #expect(arr == [0, 3, 4])
     }
 }

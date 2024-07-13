@@ -62,4 +62,12 @@ extension MPSGraphTensorData {
         self.mpsndarray().readBytes(&arr, strideBytes: nil)
         return arr
     }
+    
+    func toBools() throws(Errors) -> [Bool] {
+        if self.dataType != .bool { throw .msg("\(self.dataType)") }
+        let cnt = self.shape.map { $0.intValue }.reduce(1, *)
+        var arr = [Bool](repeating: false, count: cnt)
+        self.mpsndarray().readBytes(&arr, strideBytes: nil)
+        return arr
+    }
 }

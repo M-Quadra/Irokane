@@ -11,3 +11,10 @@ public func cumsum(_ input: borrowing Graph, dim: Int) -> Graph {
     let y = graph.cumulativeSum(consume x, axis: -1, name: nil)
     return Graph(tensor: consume y, graph: consume graph)
 }
+
+public func sum(_ input: borrowing Graph, dim: Int) -> Graph {
+    let graph = input.graph, x = input.tensor
+    
+    let y = graph.reductionSum(with: x, axis: dim, name: nil)
+    return Graph(tensor: consume y, graph: consume graph)
+}

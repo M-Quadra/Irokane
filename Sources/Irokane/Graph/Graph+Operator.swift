@@ -37,11 +37,19 @@ public extension Graph {
     }
     
     static func >= (lhs: borrowing Graph, rhs: Double) -> Graph {
-        let graph = lhs.graph, src = lhs.tensor
-        let rhs = graph.constant(rhs, dataType: src.dataType)
+        let graph = lhs.graph, x = lhs.tensor
+        let a = graph.constant(rhs, dataType: x.dataType)
         
-        let dst = graph.greaterThanOrEqualTo(consume src, consume rhs, name: nil)
-        return Graph(tensor: consume dst, graph: graph)
+        let y = graph.greaterThanOrEqualTo(consume x, consume a, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
+    
+    static func >= (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        assert(graph == rhs.graph)
+        
+        let y = graph.greaterThanOrEqualTo(x, rhs.tensor, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
     }
     
     static func <= (lhs: borrowing Graph, rhs: Double) -> Graph {
@@ -88,6 +96,13 @@ public extension Graph {
         assert(graph == rhs.graph)
 
         let y = graph.subtraction(consume x, rhs.tensor, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
+    static func - (lhs: borrowing Graph, rhs: Int) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        let a = graph.constant(Double(rhs), dataType: x.dataType)
+        
+        let y = graph.subtraction(consume x, consume a, name: nil)
         return Graph(tensor: consume y, graph: consume graph)
     }
 }
