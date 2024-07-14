@@ -80,6 +80,14 @@ public extension Graph {
         return Graph(tensor: consume y, graph: consume graph)
     }
     
+    static func * (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        assert(graph == rhs.graph)
+        
+        let y = graph.multiplication(consume x, rhs.tensor, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
+    
     static func + (lhs: Double, rhs: borrowing Graph) -> Graph {
         let graph = rhs.graph, x = rhs.tensor
 
@@ -89,6 +97,14 @@ public extension Graph {
     }
     static func + (lhs: borrowing Graph, rhs: Double) -> Graph {
         return rhs + lhs
+    }
+    
+    static func + (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        assert(graph == rhs.graph)
+
+        let y = graph.addition(consume x, rhs.tensor, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
     }
     
     static func - (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {

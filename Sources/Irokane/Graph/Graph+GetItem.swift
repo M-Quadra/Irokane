@@ -34,6 +34,15 @@ public extension Graph {
         return Graph(tensor: consume ts, graph: self.graph)
     }
     
+    // x[..., i]
+    subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph {
+        let graph = self.graph, x = self.tensor
+        
+        let x0 = graph.sliceTensor(consume x, dimension: -1, start: index, length: 1, name: nil)
+        let y = graph.squeeze(consume x0, axis: -1, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
+    
     subscript(mask: Graph) -> Graph {
         let graph = self.graph, x = self.tensor
         assert(graph == mask.graph)

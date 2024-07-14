@@ -134,9 +134,10 @@ struct GraphTests {
             1,
             0,
         ]).ik.toGraph(at: graph)
+        let x0 = x.reshape([3, 2])
+        let i0 = i[..., nil]
         
-        let y = x.reshape([3, 2])
-            .gather(dim: -1, index: i[..., nil])
+        let y = x0.gather(dim: -1, index: i0)
         
         guard let yData = graph.run(
             feeds: [
@@ -150,5 +151,49 @@ struct GraphTests {
         
         let arr = try yData.toInt32s()
         #expect(arr == [0, 3, 4])
+    }
+    
+    @Test("x + y")
+    func plus() async throws {
+        let graph = MPSGraph()
+        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let (y, yData) = try MLMultiArray(1..<4).ik.toGraph(at: graph)
+
+        let z = x + y
+
+        guard let zData = graph.run(
+            feeds: [
+                x.tensor: xData,
+                y.tensor: yData,
+            ],
+            targetTensors: [z.tensor],
+            targetOperations: nil
+        )[z.tensor] else { throw Errors.msg("empty result") }
+        #expect(zData.shape == [3])
+
+        let arr = try zData.toInt32s()
+        #expect(arr == [1, 3, 5])
+    }
+    
+    @Test("x * y")
+    func multiply() async throws {
+        let graph = MPSGraph()
+        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let (y, yData) = try MLMultiArray(1..<4).ik.toGraph(at: graph)
+
+        let z = x * y
+
+        guard let zData = graph.run(
+            feeds: [
+                x.tensor: xData,
+                y.tensor: yData,
+            ],
+            targetTensors: [z.tensor],
+            targetOperations: nil
+        )[z.tensor] else { throw Errors.msg("empty result") }
+        #expect(zData.shape == [3])
+
+        let arr = try zData.toInt32s()
+        #expect(arr == [0, 2, 6])
     }
 }
