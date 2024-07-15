@@ -282,4 +282,24 @@ struct GraphTests {
         let arr = try yData.toFloat32s()
         #expect(arr == [0, 1])
     }
+    
+    @Test("x / a")
+    func division() async throws {
+        let graph = MPSGraph()
+        let (x, xData) = try MLMultiArray([2, 4, 6]).ik.toGraph(at: graph)
+        
+        let y = x / 2
+        
+        guard let yData = graph.run(
+            feeds: [
+                x.tensor: xData,
+            ],
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { return }
+        #expect(yData.shape == [3])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [1, 2, 3])
+    }
 }

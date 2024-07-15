@@ -18,8 +18,17 @@ public extension Graph {
             rhs = graph.cast(rhs, to: lhs.dataType, name: nil)
         }
         
-        let ts = graph.divisionNoNaN(lhs, rhs, name: nil)
+        let ts = graph.division(lhs, rhs, name: nil)
         return Graph(tensor: ts, graph: graph)
+    }
+    
+    // x / a
+    static func / (lhs: borrowing Graph, rhs: Double) -> Graph {
+        let graph = lhs.graph, x = lhs.tensor
+        let a = graph.constant(Double(rhs), dataType: x.dataType)
+        
+        let y = graph.division(consume x, consume a, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
     }
     
     prefix static func - (tensor: borrowing Graph) -> Graph {
