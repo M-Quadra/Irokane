@@ -121,4 +121,11 @@ public extension Graph {
         let y = graph.subtraction(consume x, consume a, name: nil)
         return Graph(tensor: consume y, graph: consume graph)
     }
+    static func - (lhs: Int, rhs: borrowing Graph) -> Graph {
+        let graph = rhs.graph, x = rhs.tensor
+        let a = graph.constant(Double(lhs), dataType: x.dataType)
+        
+        let y = graph.subtraction(consume a, consume x, name: nil)
+        return Graph(tensor: consume y, graph: consume graph)
+    }
 }

@@ -44,4 +44,13 @@ public extension Graph {
         let y = graph.gatherAlongAxis(dim, updates: consume x, indices: index.tensor, name: nil)
         return Graph(tensor: consume y, graph: consume graph)
     }
+    
+    /// x.pow(a)
+    borrowing func pow(_ exponent: Double) -> Graph {
+        let graph = self.graph, x = self.tensor
+        let a = graph.constant(exponent, dataType: x.dataType)
+        
+        let y = graph.power(consume x, consume a, name: nil)
+        return Graph(tensor: consume y, graph: self.graph)
+    }
 }

@@ -11,6 +11,7 @@ public enum Mark {}
 
 public extension Graph {
     
+    // x[..., ..<i]
     subscript(_: (UnboundedRange_) -> (), range: PartialRangeUpTo<Int>) -> Graph {
         let graph = self.graph, x = self.tensor
         var len = range.upperBound
