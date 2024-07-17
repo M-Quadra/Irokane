@@ -18,9 +18,11 @@ public extension Wrapper where Base == MLMultiArray {
         return Tensor(base: self.base)
     }
     
-    consuming func toGraph(at graph: MPSGraph) throws(Errors) -> (dsl: Graph, data: MPSGraphTensorData) {
+    consuming func toTensor(at graph: Graph) throws(Errors) -> Graph.Tensor {
         let data = try self.base.toTensorData()
-        let ts = graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
-        return (Graph(tensor: ts, graph: graph), data)
+        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        
+        graph.feeds[x] = consume data
+        return Graph.Tensor(graph: graph, tensor: consume x)
     }
 }

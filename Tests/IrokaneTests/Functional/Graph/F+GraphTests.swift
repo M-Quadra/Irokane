@@ -16,13 +16,13 @@ fileprivate typealias F = Irokane.Functional
 struct FunctionalGraphTests {
     
     @Test func pad() async throws {
-        let graph = MPSGraph()
+        let graph = Graph()
         
-        let (x, xData) = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.toGraph(at: graph)
+        let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.toTensor(at: graph)
         let y = F.pad(x, pad: (3, 4))
         
-        guard let yData = graph.run(
-            feeds: [x.tensor: xData],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -36,15 +36,13 @@ struct FunctionalGraphTests {
             memcpy(ptr.baseAddress!, arr, MemoryLayout<Float16>.size * xArr.count)
         }
         
-        let graph = MPSGraph()
-        let (x, xData) = try xArr.ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try xArr.ik.toTensor(at: graph)
         
         let y = F.softmax(x, dim: -1)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -69,15 +67,13 @@ struct FunctionalGraphTests {
             memcpy(ptr.baseAddress!, arr, MemoryLayout<Float16>.size * xArr.count)
         }
 
-        let graph = MPSGraph()
-        let (x, xData) = try xArr.ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try xArr.ik.toTensor(at: graph)
 
         let y = F.softplus(x, beta: 2, threshold: 2)
 
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }

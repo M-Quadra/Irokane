@@ -7,134 +7,143 @@
 
 import Foundation
 
-public extension Graph {
+public extension Graph.Tensor {
     
-    static func / (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        assert(lhs.graph == rhs.graph)
-        let graph = lhs.graph, lhs = lhs.tensor
+    // x / y
+    static func / (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(lhs.graph === rhs.graph)
         
-        var rhs = rhs.tensor
-        if lhs.dataType != rhs.dataType {
-            rhs = graph.cast(rhs, to: lhs.dataType, name: nil)
+        var y = rhs.tensor
+        if x.dataType != y.dataType {
+            y = graph.cast(y, to: x.dataType, name: nil)
         }
         
-        let ts = graph.division(lhs, rhs, name: nil)
-        return Graph(tensor: ts, graph: graph)
+        let z = graph.division(consume x, consume y, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
     }
     
     // x / a
-    static func / (lhs: borrowing Graph, rhs: Double) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
+    static func / (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
         let a = graph.constant(Double(rhs), dataType: x.dataType)
         
         let y = graph.division(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
-    prefix static func - (tensor: borrowing Graph) -> Graph {
-        let ts = tensor.graph.negative(with: tensor.tensor, name: nil)
-        return Graph(tensor: consume ts, graph: tensor.graph)
-    }
-    
-    prefix static func ~ (tensor: borrowing Graph) -> Graph {
-        let graph = tensor.graph, src = tensor.tensor
-        assert(src.dataType == .bool)
-        let rhs = graph.constant(0, dataType: src.dataType)
+    // -x
+    prefix static func - (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = tensor.graph.graph, x = tensor.tensor
         
-        let dst = graph.equal(consume src, consume rhs, name: nil)
-        return Graph(tensor: consume dst, graph: consume graph)
+        let y = graph.negative(with: x, name: nil)
+        return Graph.Tensor(graph: tensor.graph, tensor: consume y)
     }
     
-    static func >= (lhs: borrowing Graph, rhs: Double) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
+    // ~x
+    prefix static func ~ (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = tensor.graph.graph, x = tensor.tensor
+        assert(x.dataType == .bool)
+        let a = graph.constant(0, dataType: x.dataType)
+        
+        let y = graph.equal(consume x, consume a, name: nil)
+        return Graph.Tensor(graph: tensor.graph, tensor: consume y)
+    }
+    
+    static func >= (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
         let a = graph.constant(rhs, dataType: x.dataType)
         
         let y = graph.greaterThanOrEqualTo(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
-    static func >= (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
-        assert(graph == rhs.graph)
+    static func >= (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
         
         let y = graph.greaterThanOrEqualTo(x, rhs.tensor, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
-    static func <= (lhs: borrowing Graph, rhs: Double) -> Graph {
-        let graph = lhs.graph, src = lhs.tensor
-        let rhs = graph.constant(rhs, dataType: src.dataType)
+    static func <= (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        let y = graph.constant(rhs, dataType: x.dataType)
         
-        let dst = graph.lessThanOrEqualTo(consume src, consume rhs, name: nil)
-        return Graph(tensor: consume dst, graph: graph)
+        let z = graph.lessThanOrEqualTo(consume x, consume y, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
     }
     
-    static func & (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        let graph = lhs.graph, lhs = lhs.tensor
-        assert(graph == rhs.graph)
-        var rhs = rhs.tensor
-        if lhs.dataType != rhs.dataType {
-            rhs = graph.cast(rhs, to: lhs.dataType, name: nil)
+    static func & (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
+        var y = rhs.tensor
+        if x.dataType != y.dataType {
+            y = graph.cast(y, to: x.dataType, name: nil)
         }
         
-        let ts = graph.logicalAND(consume lhs, consume rhs, name: nil)
-        return Graph(tensor: consume ts, graph: consume graph)
+        let z = graph.logicalAND(consume x, consume y, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
     }
     
-    static func * (lhs: Double, rhs: borrowing Graph) -> Graph {
-        let graph = rhs.graph, x = rhs.tensor
-        
+    // a * x
+    static func * (lhs: Double, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = rhs.graph.graph, x = rhs.tensor
         let a = graph.constant(lhs, dataType: x.dataType)
+        
         let y = graph.multiplication(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: rhs.graph, tensor: consume y)
     }
     
-    static func * (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
-        assert(graph == rhs.graph)
+    // x * y
+    static func * (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
         
         let y = graph.multiplication(consume x, rhs.tensor, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
-    static func + (lhs: Double, rhs: borrowing Graph) -> Graph {
-        let graph = rhs.graph, x = rhs.tensor
-
+    // a + x
+    static func + (lhs: Double, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = rhs.graph.graph, x = rhs.tensor
         let a = graph.constant(lhs, dataType: x.dataType)
+        
         let y = graph.addition(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: rhs.graph, tensor: consume y)
     }
-    static func + (lhs: borrowing Graph, rhs: Double) -> Graph {
+    static func + (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
         return rhs + lhs
     }
     
-    static func + (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
-        assert(graph == rhs.graph)
+    // x + y
+    static func + (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
 
         let y = graph.addition(consume x, rhs.tensor, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
-    static func - (lhs: borrowing Graph, rhs: borrowing Graph) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
-        assert(graph == rhs.graph)
+    static func - (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
 
         let y = graph.subtraction(consume x, rhs.tensor, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
-    static func - (lhs: borrowing Graph, rhs: Int) -> Graph {
-        let graph = lhs.graph, x = lhs.tensor
+    static func - (lhs: borrowing Graph.Tensor, rhs: Int) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
         let a = graph.constant(Double(rhs), dataType: x.dataType)
         
         let y = graph.subtraction(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
-    static func - (lhs: Int, rhs: borrowing Graph) -> Graph {
-        let graph = rhs.graph, x = rhs.tensor
+    static func - (lhs: Int, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = rhs.graph.graph, x = rhs.tensor
         let a = graph.constant(Double(lhs), dataType: x.dataType)
         
         let y = graph.subtraction(consume a, consume x, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: rhs.graph, tensor: consume y)
     }
 }

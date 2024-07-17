@@ -8,49 +8,64 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
-public struct Graph {
-    public let tensor: MPSGraphTensor
-    public let graph: MPSGraph
+public class Graph {
+    public let graph: MPSGraph = MPSGraph()
+    public internal(set) var feeds: [MPSGraphTensor: MPSGraphTensorData] = [:]
+    
+    public init() {}
 }
 
-public extension Graph {
+public extension Graph { struct Tensor {
+    public let graph: Graph
+    public internal(set) var tensor: MPSGraphTensor
+}}
+
+public extension Graph.Tensor {
     
     var shape: [NSNumber] { self.tensor.shape ?? [] }
     
-    func cast(to type: consuming MPSDataType) -> Graph {
-        let y = self.graph.cast(self.tensor, to: type, name: nil)
-        return Graph(tensor: consume y, graph: self.graph)
+    borrowing func cast(to type: MPSDataType) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.cast(consume x, to: type, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    func reshape(_ shape: consuming [NSNumber]) -> Graph {
-        let y = self.graph.reshape(self.tensor, shape: shape, name: nil)
-        return Graph(tensor: consume y, graph: self.graph)
+    borrowing func reshape(_ shape: [NSNumber]) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.reshape(consume x, shape: shape, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    func permute(_ dims: consuming [NSNumber]) -> Graph {
-        let y = self.graph.transpose(self.tensor, permutation: dims, name: nil)
-        return Graph(tensor: consume y, graph: self.graph)
+    borrowing func permute(_ dims: [NSNumber]) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.transpose(consume x, permutation: dims, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    func unsqueeze(_ dim: Int) -> Graph {
-        let y = self.graph.expandDims(self.tensor, axis: dim, name: nil)
-        return Graph(tensor: consume y, graph: self.graph)
+    borrowing func unsqueeze(_ dim: Int) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.expandDims(consume x, axis: dim, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    borrowing func gather(dim: Int, index: Graph) -> Graph {
-        let graph = self.graph, x = self.tensor
-        assert(graph == index.graph)
+    borrowing func gather(dim: Int, index: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        assert(graph == index.graph.graph)
         
         let y = graph.gatherAlongAxis(dim, updates: consume x, indices: index.tensor, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
     /// x.pow(a)
-    borrowing func pow(_ exponent: Double) -> Graph {
-        let graph = self.graph, x = self.tensor
+    borrowing func pow(_ exponent: Double) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
         let a = graph.constant(exponent, dataType: x.dataType)
         
         let y = graph.power(consume x, consume a, name: nil)
-        return Graph(tensor: consume y, graph: self.graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }

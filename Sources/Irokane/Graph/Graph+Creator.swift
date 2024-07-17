@@ -7,12 +7,13 @@
 
 import MetalPerformanceShadersGraph
 
-public extension Graph {
+public extension Graph.Tensor {
     
-    static func zerosLike(_ input: borrowing Graph) -> Graph {
-        let graph = input.graph, tensor = input.tensor
-        let zero = graph.constant(0, dataType: tensor.dataType)
-        let ts = graph.multiplication(tensor, zero, name: nil)
-        return Graph(tensor: consume ts, graph: graph)
+    static func zerosLike(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
+        let zero = graph.constant(0, dataType: x.dataType)
+        
+        let y = graph.multiplication(x, zero, name: nil)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
 }

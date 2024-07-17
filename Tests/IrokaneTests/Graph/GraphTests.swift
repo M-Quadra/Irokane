@@ -15,21 +15,18 @@ struct GraphTests {
     
     @Test("x >= y")
     func greaterThanOrEqualTensor() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray([0, 1, 0]).ik.toGraph(at: graph)
-        let (y, yData) = try MLMultiArray([
+        let graph = Graph()
+        let x = try MLMultiArray([0, 1, 0]).ik.toTensor(at: graph)
+        let y = try MLMultiArray([
             1, 0,
             1, 0,
             1, 0
-        ]).ik.toGraph(at: graph)
+        ]).ik.toTensor(at: graph)
         
         let z = x[..., nil] >= y.reshape([3, 2])
         
-        guard let zData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                y.tensor: yData,
-            ],
+        guard let zData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
         )[z.tensor] else { throw Errors.msg("empty result") }
@@ -45,15 +42,13 @@ struct GraphTests {
     
     @Test("sum(x, dim=-1), 1d")
     func sum1d() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray([0, 1, 2]).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
         
         let y = Irokane.sum(x, dim: -1)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -65,16 +60,14 @@ struct GraphTests {
     
     @Test("sum(x, dim=-1), 2d")
     func sum2d() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<6).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
         let x0 = x.reshape([2, 3])
         
         let y = Irokane.sum(x0, dim: -1)
 
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -86,27 +79,24 @@ struct GraphTests {
     
     @Test("x.gather(-1, idx)")
     func gather() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray([
+        let graph = Graph()
+        let x = try MLMultiArray([
             0, 1,
             2, 3,
             4, 5,
-        ]).ik.toGraph(at: graph)
-        let (i, iData) = try MLMultiArray([
+        ]).ik.toTensor(at: graph)
+        let i = try MLMultiArray([
             0,
             1,
             0,
-        ]).ik.toGraph(at: graph)
+        ]).ik.toTensor(at: graph)
         let x0 = x.reshape([3, 2])
         let i0 = i[..., nil]
         
         let y = x0.gather(dim: -1, index: i0)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                i.tensor: iData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -118,17 +108,14 @@ struct GraphTests {
     
     @Test("x + y")
     func plus() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
-        let (y, yData) = try MLMultiArray(1..<4).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
         
         let z = x + y
         
-        guard let zData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                y.tensor: yData,
-            ],
+        guard let zData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
         )[z.tensor] else { throw Errors.msg("empty result") }
@@ -140,17 +127,14 @@ struct GraphTests {
     
     @Test("x * y")
     func multiply() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
-        let (y, yData) = try MLMultiArray(1..<4).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
         
         let z = x * y
         
-        guard let zData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                y.tensor: yData,
-            ],
+        guard let zData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
         )[z.tensor] else { throw Errors.msg("empty result") }
@@ -162,15 +146,13 @@ struct GraphTests {
     
     @Test("x.pow(a)")
     func pow() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
         let y = x.pow(2)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -181,15 +163,13 @@ struct GraphTests {
     }
     
     @Test func sqrt() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
         let y = Irokane.sqrt(x*x)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -201,19 +181,16 @@ struct GraphTests {
     
     @Test("cat([x, y], 1)")
     func cat() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
-        let (y, yData) = try MLMultiArray(3..<6).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let y = try MLMultiArray(3..<6).ik.toTensor(at: graph)
         let x0 = x.reshape([1, 1, 3])
         let y0 = y.reshape([1, 1, 3])
         
         let z = Irokane.cat(x0, y0, dim: 1)
         
-        guard let zData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                y.tensor: yData,
-            ],
+        guard let zData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
         )[z.tensor] else { throw Errors.msg("empty result") }
@@ -228,15 +205,13 @@ struct GraphTests {
     
     @Test("maximum(x, a)")
     func maximum() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray([Float.nan, 1]).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray([Float.nan, 1]).ik.toTensor(at: graph)
         
         let y = Irokane.maximum(x, 0)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -248,15 +223,13 @@ struct GraphTests {
     
     @Test("x / a")
     func division() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray([2, 4, 6]).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
         
         let y = x / 2
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { return }

@@ -29,17 +29,14 @@ struct GraphSetItem {
             memcpy(ptr.baseAddress!, arr, MemoryLayout<Int32>.size * maskArr.count)
         }
         
-        let graph = MPSGraph()
-        let (x, xData) = try xArr.ik.toGraph(at: graph)
-        let (m, mData) = try maskArr.ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try xArr.ik.toTensor(at: graph)
+        let m = try maskArr.ik.toTensor(at: graph)
         
         let y = x.setItem(at: m, 7)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                m.tensor: mData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -75,19 +72,15 @@ struct GraphSetItem {
             memcpy(ptr.baseAddress!, arr, MemoryLayout<Int32>.size * updateArr.count)
         }
 
-        let graph = MPSGraph()
-        let (x, xData) = try xArr.ik.toGraph(at: graph)
-        let (m, mData) = try maskArr.ik.toGraph(at: graph)
-        let (u, uData) = try updateArr.ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try xArr.ik.toTensor(at: graph)
+        let m = try maskArr.ik.toTensor(at: graph)
+        let u = try updateArr.ik.toTensor(at: graph)
 
         let y = x.setItem(at: m, u)
 
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-                m.tensor: mData,
-                u.tensor: uData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -107,13 +100,13 @@ struct GraphSetItem {
     @available(iOS 18.0, *)
     @Test("x[..., a] = b")
     func setItemSt() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
         let y = x.setItem(at: (..., 1), 2)
         
-        guard let yData = graph.run(
-            feeds: [x.tensor: xData],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -126,13 +119,13 @@ struct GraphSetItem {
     @available(iOS 18.0, *)
     @Test("x[..., -1] = a")
     func setItemEd() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
         let y = x.setItem(at: (..., -1), 2)
         
-        guard let yData = graph.run(
-            feeds: [x.tensor: xData],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
@@ -144,15 +137,13 @@ struct GraphSetItem {
     
     @Test("x[..., -1] += a")
     func addItemEd() async throws {
-        let graph = MPSGraph()
-        let (x, xData) = try MLMultiArray(0..<3).ik.toGraph(at: graph)
+        let graph = Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
         let y = x.addItem(at: (..., -1), 1)
         
-        guard let yData = graph.run(
-            feeds: [
-                x.tensor: xData,
-            ],
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }

@@ -13,31 +13,31 @@ public struct Functional {
 
 public extension Functional {
     
-    static func pad(_ input: Graph, pad: (left: Int, right: Int)) -> Graph {
-        let graph = input.graph, x = input.tensor
+    static func pad(_ input: borrowing Graph.Tensor, pad: (left: Int, right: Int)) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
         guard let rank = x.shape?.count, rank > 0 else {
             assertionFailure("input.shape is nil")
-            return input
+            return Graph.Tensor(graph: input.graph, tensor: consume x)
         }
         var left = [NSNumber](repeating: 0, count: rank)
         left[rank - 1] = pad.left as NSNumber
         var right = [NSNumber](repeating: 0, count: rank)
         right[rank - 1] = pad.right as NSNumber
-
+        
         let y = graph.padTensor(x, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
     
-    static func softmax(_ input: Graph, dim: Int) -> Graph {
-        let graph = input.graph, x = input.tensor
+    static func softmax(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
         assert(x.dataType != .int32)
         
         let y = graph.softMax(with: x, axis: dim, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
     
-    static func softplus(_ input: Graph, beta: Int = 1, threshold: Double = 20) -> Graph {
-        let graph = input.graph, x = input.tensor
+    static func softplus(_ input: borrowing Graph.Tensor, beta: Int = 1, threshold: Double = 20) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
         let b = graph.constant(Double(beta), dataType: x.dataType)
         let t = graph.constant(threshold, dataType: x.dataType)
         assert(x.dataType != .int32)
@@ -59,6 +59,6 @@ public extension Functional {
         )
         
         let y = graph.addition(log0, x0, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
 }

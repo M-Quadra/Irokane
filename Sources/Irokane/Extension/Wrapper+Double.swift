@@ -13,8 +13,8 @@ public extension Double {
 
 public extension Wrapper where Base == Double {
     
-    consuming func toGraph(at graph: MPSGraph, dataType: MPSDataType = .float16) -> Graph {
-        let a = graph.constant(self.base, dataType: dataType)
-        return Graph(tensor: consume a, graph: graph)
+    consuming func toTensor(at graph: Graph, dataType: MPSDataType = .float16) -> Graph.Tensor {
+        let a = graph.graph.constant(self.base, dataType: dataType)
+        return Graph.Tensor(graph: graph, tensor: consume a)
     }
 }

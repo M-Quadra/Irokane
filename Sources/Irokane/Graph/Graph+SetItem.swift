@@ -5,18 +5,18 @@
 //  Created by m_quadra on 2024/7/4.
 //
 
-public extension Graph {
+public extension Graph.Tensor {
     
-    func setItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ constant: Double) -> Graph {
-        let graph = self.graph, src = self.tensor
-        guard let len = src.shape?.last?.intValue else {
+    func setItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ constant: Double) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
-            return self
+            return Graph.Tensor(graph: self.graph, tensor: x)
         }
         let index = range.index + (range.index < 0 ? len : 0)
         guard 0 <= index, index < len else {
             assertionFailure("index error")
-            return self
+            return Graph.Tensor(graph: self.graph, tensor: x)
         }
         
         let i = graph.constant(Double(index), dataType: .int32)
@@ -25,16 +25,16 @@ public extension Graph {
             to: .bool, name: nil
         )
         let v = graph.multiplication(
-            oneHot, graph.constant(constant, dataType: src.dataType),
+            oneHot, graph.constant(constant, dataType: x.dataType),
             name: nil
         )
         
         let ts0 = graph.multiplication(
-            src, graph.logicalNOR(oneHot, oneHot, name: nil),
+            x, graph.logicalNOR(oneHot, oneHot, name: nil),
             name: nil
         )
         let ts1 = graph.addition(ts0, v, name: nil)
-        return Graph(tensor: consume ts1, graph: consume graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume ts1)
         
         // TODO: branch mark with split+concat
         //            var arr = graph.split(src, numSplits: len, axis: -1, name: nil)
@@ -49,9 +49,9 @@ public extension Graph {
         //            let ts = graph.concatTensors(arr, dimension: -1, name: nil)
     }
     
-    func setItem(at mask: Graph, _ constant: Double) -> Graph {
-        let graph = self.graph, x = self.tensor
-        assert(graph == mask.graph)
+    func setItem(at mask: borrowing Graph.Tensor, _ constant: Double) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        assert(graph == mask.graph.graph)
         assert(x.shape != nil)
         assert(x.shape == mask.tensor.shape)
         
@@ -70,12 +70,12 @@ public extension Graph {
         )
         
         let y = graph.addition(x0, v, name: nil)
-        return Graph(tensor: y, graph: graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    func setItem(at mask: Graph, _ tensor: Graph) -> Graph {
-        let graph = self.graph, x = self.tensor
-        assert(graph == mask.graph)
+    func setItem(at mask: borrowing Graph.Tensor, _ tensor: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        assert(graph == mask.graph.graph)
         assert(x.shape != nil)
         assert(x.shape == mask.tensor.shape)
         
@@ -83,20 +83,20 @@ public extension Graph {
         let i = graph.nonZeroIndices(m, name: nil)
         
         let y = graph.scatterNDWithData(x, updates: tensor.tensor, indices: i, batchDimensions: 0, mode: .set, name: nil)
-        return Graph(tensor: y, graph: graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
     /// x[..., i] += a
-    func addItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ a: Double) -> Graph {
-        let graph = self.graph, x = self.tensor
+    func addItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ a: Double) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
-            return self
+            return Graph.Tensor(graph: self.graph, tensor: x)
         }
         let index = range.index + (range.index < 0 ? len : 0)
         guard 0 <= index, index <= len else {
             assertionFailure("index error")
-            return self
+            return Graph.Tensor(graph: self.graph, tensor: x)
         }
         
         let i = graph.constant(Double(index), dataType: .int32)
@@ -107,6 +107,6 @@ public extension Graph {
         let a0 = graph.multiplication(i1, a, name: nil)
         
         let y = graph.addition(x, a0, name: nil)
-        return Graph(tensor: consume y, graph: consume graph)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }

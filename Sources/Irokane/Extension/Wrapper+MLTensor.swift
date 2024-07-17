@@ -20,9 +20,11 @@ public extension Wrapper where Base == MLTensor {
         return Tensor(base: self.base)
     }
     
-    consuming func toGraph(at graph: MPSGraph) async throws(Errors) -> (dsl: Graph, data: MPSGraphTensorData) {
+    consuming func toTensor(at graph: Graph) async throws(Errors) -> Graph.Tensor {
         let data = try await self.base.toTensorData()
-        let ts = graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
-        return (Graph(tensor: ts, graph: graph), data)
+        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        
+        graph.feeds[x] = consume data
+        return Graph.Tensor(graph: graph, tensor: consume x)
     }
 }
