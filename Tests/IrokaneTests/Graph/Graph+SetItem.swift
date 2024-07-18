@@ -98,40 +98,40 @@ struct GraphSetItem {
     }
     
     @available(iOS 18.0, *)
-    @Test("x[..., a] = b")
+    @Test("x[..., i] = a")
     func setItemSt() async throws {
         let graph = Graph()
         let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
-        let y = x.setItem(at: (..., 1), 2)
+        x[..., 1] .= 2
         
-        guard let yData = graph.graph.run(
+        guard let xData = graph.graph.run(
             feeds: graph.feeds,
-            targetTensors: [y.tensor],
+            targetTensors: [x.tensor],
             targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [1, 2])
+        )[x.tensor] else { throw Errors.msg("empty result") }
+        #expect(xData.shape == [1, 2])
         
-        let arr = try yData.toFloat32s()
+        let arr = try xData.toFloat32s()
         #expect(arr == [0.5, 2])
     }
     
     @available(iOS 18.0, *)
-    @Test("x[..., -1] = a")
+    @Test("x[..., -i] = a")
     func setItemEd() async throws {
         let graph = Graph()
         let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
-        let y = x.setItem(at: (..., -1), 2)
+        x[..., -1] .= 2
         
-        guard let yData = graph.graph.run(
+        guard let xData = graph.graph.run(
             feeds: graph.feeds,
-            targetTensors: [y.tensor],
+            targetTensors: [x.tensor],
             targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [1, 2])
+        )[x.tensor] else { throw Errors.msg("empty result") }
+        #expect(xData.shape == [1, 2])
         
-        let arr = try yData.toFloat32s()
+        let arr = try xData.toFloat32s()
         #expect(arr == [0.5, 2])
     }
     

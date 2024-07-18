@@ -13,11 +13,20 @@ public class Graph {
     public internal(set) var feeds: [MPSGraphTensor: MPSGraphTensorData] = [:]
     
     public init() {}
+    
+    func tensor(_ tensor: MPSGraphTensor) -> Graph.Tensor {
+        return Graph.Tensor(graph: self, tensor: tensor)
+    }
 }
 
-public extension Graph { struct Tensor {
+public extension Graph { class Tensor {
     public let graph: Graph
     public internal(set) var tensor: MPSGraphTensor
+    
+    init(graph: Graph, tensor: MPSGraphTensor) {
+        self.graph = graph
+        self.tensor = tensor
+    }
 }}
 
 public extension Graph.Tensor {
@@ -28,7 +37,7 @@ public extension Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
         let y = graph.cast(consume x, to: type, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
+        return self.graph.tensor(consume y)
     }
     
     borrowing func reshape(_ shape: [NSNumber]) -> Graph.Tensor {

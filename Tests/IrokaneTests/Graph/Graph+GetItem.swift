@@ -116,7 +116,7 @@ struct GraphGetItem {
         let graph = Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
         
-        let y = x.reshape([3, 2])[..., 0]
+        let y: Graph.Tensor = x.reshape([3, 2])[..., 0]
 
         guard let yData = graph.graph.run(
             feeds: graph.feeds,

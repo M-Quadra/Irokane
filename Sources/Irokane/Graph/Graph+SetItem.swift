@@ -5,18 +5,48 @@
 //  Created by m_quadra on 2024/7/4.
 //
 
+enum Subscript {
+    case lastIndex(i: Int)
+}
+
+public extension Graph.Tensor { struct Sub: ~Copyable {
+    let base: Graph.Tensor
+    let sub: Subscript
+}}
+
+infix operator .=
+
+public extension Graph.Tensor.Sub {
+    
+    static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
+        switch lhs.sub {
+        case .lastIndex(let i):
+            lhs.base.setLast(index: i, with: rhs)
+        }
+    }
+}
+
 public extension Graph.Tensor {
     
-    func setItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ constant: Double) -> Graph.Tensor {
+    // x[..., i]
+    subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph.Tensor.Sub {
+        .init(base: self, sub: .lastIndex(i: index))
+    }
+}
+
+extension Graph.Tensor {
+    
+    // x[..., i] .= a
+    func setLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
-            return Graph.Tensor(graph: self.graph, tensor: x)
+            return
         }
-        let index = range.index + (range.index < 0 ? len : 0)
+        let index = index + (index < 0 ? len : 0)
         guard 0 <= index, index < len else {
             assertionFailure("index error")
-            return Graph.Tensor(graph: self.graph, tensor: x)
+            return
         }
         
         let i = graph.constant(Double(index), dataType: .int32)
@@ -24,8 +54,8 @@ public extension Graph.Tensor {
             graph.oneHot(withIndicesTensor: i, depth: len, name: nil),
             to: .bool, name: nil
         )
-        let v = graph.multiplication(
-            oneHot, graph.constant(constant, dataType: x.dataType),
+        let a = graph.multiplication(
+            oneHot, graph.constant(a, dataType: x.dataType),
             name: nil
         )
         
@@ -33,8 +63,8 @@ public extension Graph.Tensor {
             x, graph.logicalNOR(oneHot, oneHot, name: nil),
             name: nil
         )
-        let ts1 = graph.addition(ts0, v, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume ts1)
+        let y = graph.addition(ts0, a, name: nil)
+        self.tensor = y
         
         // TODO: branch mark with split+concat
         //            var arr = graph.split(src, numSplits: len, axis: -1, name: nil)
@@ -48,7 +78,10 @@ public extension Graph.Tensor {
         //            )
         //            let ts = graph.concatTensors(arr, dimension: -1, name: nil)
     }
-    
+}
+
+public extension Graph.Tensor {
+        
     func setItem(at mask: borrowing Graph.Tensor, _ constant: Double) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         assert(graph == mask.graph.graph)
