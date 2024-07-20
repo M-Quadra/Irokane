@@ -14,14 +14,29 @@ public extension Graph.Tensor { struct Sub: ~Copyable {
     let sub: Subscript
 }}
 
+// replace `=`
 infix operator .=
 
 public extension Graph.Tensor.Sub {
+    /*
+     the result of subscript can't consume directly.
+     eg. x[..., 0] .= 1
+     need: let i = x[..., 0]; i .= 1
+     
+     for using `x[..., 0] .= 1` style, chose `borrowing Graph.Tensor.Sub`
+     */
     
     static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
         switch lhs.sub {
         case .lastIndex(let i):
             lhs.base.setLast(index: i, with: rhs)
+        }
+    }
+    
+    static func += (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
+        switch lhs.sub {
+        case .lastIndex(let i):
+            lhs.base.addLast(index: i, with: rhs)
         }
     }
 }
@@ -34,10 +49,10 @@ public extension Graph.Tensor {
     }
 }
 
-extension Graph.Tensor {
+fileprivate extension Graph.Tensor {
     
-    // x[..., i] .= a
-    func setLast(index: Int, with a: Double) {
+    /// x[..., i] .= a
+    borrowing func setLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
@@ -50,21 +65,16 @@ extension Graph.Tensor {
         }
         
         let i = graph.constant(Double(index), dataType: .int32)
-        let oneHot = graph.cast(
-            graph.oneHot(withIndicesTensor: i, depth: len, name: nil),
-            to: .bool, name: nil
-        )
-        let a = graph.multiplication(
-            oneHot, graph.constant(a, dataType: x.dataType),
-            name: nil
-        )
+        let i0 = graph.oneHot(withIndicesTensor: consume i, depth: len, name: nil)
+        let i1 = graph.cast(consume i0, to: .bool, name: nil)
+        let i2 = graph.logicalNOR(i1, i1, name: nil)
         
-        let ts0 = graph.multiplication(
-            x, graph.logicalNOR(oneHot, oneHot, name: nil),
-            name: nil
-        )
-        let y = graph.addition(ts0, a, name: nil)
-        self.tensor = y
+        let a = graph.constant(a, dataType: x.dataType)
+        let a0 = graph.multiplication(consume i1, consume a, name: nil)
+        
+        let x0 = graph.multiplication(consume x, consume i2, name: nil)
+        let y = graph.addition(consume x0, consume a0, name: nil)
+        self.tensor = consume y
         
         // TODO: branch mark with split+concat
         //            var arr = graph.split(src, numSplits: len, axis: -1, name: nil)
@@ -77,6 +87,30 @@ extension Graph.Tensor {
         //                name: nil
         //            )
         //            let ts = graph.concatTensors(arr, dimension: -1, name: nil)
+    }
+    
+    /// x[..., i] += a
+    borrowing func addLast(index: Int, with a: Double) {
+        let graph = self.graph.graph, x = self.tensor
+        guard let len = x.shape?.last?.intValue else {
+            assertionFailure("shape error")
+            return
+        }
+        let index = index + (index < 0 ? len : 0)
+        guard 0 <= index, index < len else {
+            assertionFailure("index error")
+            return
+        }
+        
+        let i = graph.constant(Double(index), dataType: .int32)
+        let i0 = graph.oneHot(withIndicesTensor: consume i, depth: len, name: nil)
+        let i1 = graph.cast(consume i0, to: x.dataType, name: nil)
+        
+        let a = graph.constant(Double(a), dataType: x.dataType)
+        let a0 = graph.multiplication(consume i1, consume a, name: nil)
+        
+        let y = graph.addition(consume x, consume a0, name: nil)
+        self.tensor = consume y
     }
 }
 
@@ -116,30 +150,6 @@ public extension Graph.Tensor {
         let i = graph.nonZeroIndices(m, name: nil)
         
         let y = graph.scatterNDWithData(x, updates: tensor.tensor, indices: i, batchDimensions: 0, mode: .set, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
-    }
-    
-    /// x[..., i] += a
-    func addItem(at range: (_: (UnboundedRange_) -> (), index: Int), _ a: Double) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        guard let len = x.shape?.last?.intValue else {
-            assertionFailure("shape error")
-            return Graph.Tensor(graph: self.graph, tensor: x)
-        }
-        let index = range.index + (range.index < 0 ? len : 0)
-        guard 0 <= index, index <= len else {
-            assertionFailure("index error")
-            return Graph.Tensor(graph: self.graph, tensor: x)
-        }
-        
-        let i = graph.constant(Double(index), dataType: .int32)
-        let i0 = graph.oneHot(withIndicesTensor: i, depth: len, name: nil)
-        let i1 = graph.cast(i0, to: x.dataType, name: nil)
-        
-        let a = graph.constant(Double(a), dataType: x.dataType)
-        let a0 = graph.multiplication(i1, a, name: nil)
-        
-        let y = graph.addition(x, a0, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }

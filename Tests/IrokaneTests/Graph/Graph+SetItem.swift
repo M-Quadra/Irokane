@@ -140,16 +140,16 @@ struct GraphSetItem {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
-        let y = x.addItem(at: (..., -1), 1)
+        x[..., -1] += 1
         
-        guard let yData = graph.graph.run(
+        guard let xData = graph.graph.run(
             feeds: graph.feeds,
-            targetTensors: [y.tensor],
+            targetTensors: [x.tensor],
             targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [3])
+        )[x.tensor] else { throw Errors.msg("empty result") }
+        #expect(xData.shape == [3])
         
-        let arr = try yData.toInt32s()
+        let arr = try xData.toInt32s()
         #expect(arr == [0, 1, 3])
     }
 }
