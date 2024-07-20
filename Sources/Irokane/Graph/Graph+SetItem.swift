@@ -5,8 +5,11 @@
 //  Created by m_quadra on 2024/7/4.
 //
 
+import MetalPerformanceShadersGraph
+
 enum Subscript {
     case lastIndex(i: Int)
+    case mask(m: MPSGraphTensor)
 }
 
 public extension Graph.Tensor { struct Sub: ~Copyable {
@@ -30,6 +33,9 @@ public extension Graph.Tensor.Sub {
         switch lhs.sub {
         case .lastIndex(let i):
             lhs.base.setLast(index: i, with: rhs)
+        case .mask(let m):
+            assert(m.operation.graph == lhs.base.graph.graph)
+            lhs.base.setBy(mask: m, with: rhs)
         }
     }
     
@@ -37,6 +43,7 @@ public extension Graph.Tensor.Sub {
         switch lhs.sub {
         case .lastIndex(let i):
             lhs.base.addLast(index: i, with: rhs)
+        default: assertionFailure("TODO")
         }
     }
 }
@@ -46,6 +53,12 @@ public extension Graph.Tensor {
     // x[..., i]
     subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph.Tensor.Sub {
         .init(base: self, sub: .lastIndex(i: index))
+    }
+    
+    // x[mask]
+    subscript(mask: Graph.Tensor) -> Graph.Tensor.Sub {
+        assert(self.graph === mask.graph)
+        return .init(base: self, sub: .mask(m: mask.tensor))
     }
 }
 
@@ -89,6 +102,25 @@ fileprivate extension Graph.Tensor {
         //            let ts = graph.concatTensors(arr, dimension: -1, name: nil)
     }
     
+    /// x[mask] .= a
+    borrowing func setBy(mask: MPSGraphTensor, with a: Double) {
+        let graph = self.graph.graph, x = self.tensor
+        assert(x.shape != nil)
+        assert(x.shape == mask.shape)
+        
+        let m = graph.cast(mask, to: .bool, name: nil)
+        let m0 = graph.logicalNOR(m, m, name: nil)
+        let m1 = graph.cast(consume m0, to: x.dataType, name: nil)
+        
+        let a = graph.constant(a, dataType: x.dataType)
+        let m2 = graph.cast(consume m, to: x.dataType, name: nil)
+        let a0 = graph.multiplication(consume m2, consume a, name: nil)
+        
+        let x0 = graph.multiplication(consume x, consume m1, name: nil)
+        let y = graph.addition(consume x0, consume a0, name: nil)
+        self.tensor = consume y
+    }
+    
     /// x[..., i] += a
     borrowing func addLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
@@ -115,30 +147,6 @@ fileprivate extension Graph.Tensor {
 }
 
 public extension Graph.Tensor {
-        
-    func setItem(at mask: borrowing Graph.Tensor, _ constant: Double) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        assert(graph == mask.graph.graph)
-        assert(x.shape != nil)
-        assert(x.shape == mask.tensor.shape)
-        
-        let m = graph.cast(mask.tensor, to: .bool, name: nil)
-        let n = graph.logicalNOR(m, m, name: nil)
-        
-        let x0 = graph.multiplication(
-            x, graph.cast(n, to: x.dataType, name: nil),
-            name: nil
-        )
-        
-        let constant = graph.constant(constant, dataType: x.dataType)
-        let v = graph.multiplication(
-            graph.cast(m, to: x.dataType, name: nil), constant,
-            name: nil
-        )
-        
-        let y = graph.addition(x0, v, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
-    }
     
     func setItem(at mask: borrowing Graph.Tensor, _ tensor: borrowing Graph.Tensor) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor

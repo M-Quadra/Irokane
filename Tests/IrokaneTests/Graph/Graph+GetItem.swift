@@ -24,7 +24,7 @@ struct GraphGetItem {
         let x0 = x.reshape([2, 3])
         let m0 = m.reshape([2, 3])
         
-        let y = x0[m0]
+        let y: Graph.Tensor = x0[m0]
         
         guard let yData = graph.graph.run(
             feeds: graph.feeds,
