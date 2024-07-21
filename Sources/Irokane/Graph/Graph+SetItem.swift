@@ -39,6 +39,15 @@ public extension Graph.Tensor.Sub {
         }
     }
     
+    static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Graph.Tensor) {
+        assert(lhs.base.graph.graph == rhs.graph.graph)
+        switch lhs.sub {
+        case .mask(let m):
+            lhs.base.setBy(mask: m, with: rhs.tensor)
+        default: assertionFailure("TODO")
+        }
+    }
+    
     static func += (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
         switch lhs.sub {
         case .lastIndex(let i):
@@ -121,6 +130,21 @@ fileprivate extension Graph.Tensor {
         self.tensor = consume y
     }
     
+    /// x[mask] .= y
+    borrowing func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
+        let graph = self.graph.graph, x = self.tensor
+        assert(graph == mask.operation.graph)
+        assert(mask.operation.graph == y.operation.graph)
+        assert(x.shape != nil)
+        assert(x.shape == mask.shape)
+        
+        let m = graph.cast(mask, to: .bool, name: nil)
+        let i = graph.nonZeroIndices(consume m, name: nil)
+        
+        let y = graph.scatterNDWithData(consume x, updates: y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
+        self.tensor = consume y
+    }
+    
     /// x[..., i] += a
     borrowing func addLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
@@ -143,21 +167,5 @@ fileprivate extension Graph.Tensor {
         
         let y = graph.addition(consume x, consume a0, name: nil)
         self.tensor = consume y
-    }
-}
-
-public extension Graph.Tensor {
-    
-    func setItem(at mask: borrowing Graph.Tensor, _ tensor: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        assert(graph == mask.graph.graph)
-        assert(x.shape != nil)
-        assert(x.shape == mask.tensor.shape)
-        
-        let m = graph.cast(mask.tensor, to: .bool, name: nil)
-        let i = graph.nonZeroIndices(m, name: nil)
-        
-        let y = graph.scatterNDWithData(x, updates: tensor.tensor, indices: i, batchDimensions: 0, mode: .set, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }
