@@ -24,14 +24,14 @@ public extension Graph.Tensor {
     }
     
     subscript(_: (UnboundedRange_) -> (), range: Range<Int>) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
+        let graph = self.graph.graph
         
         let y = graph.sliceTensor(self.tensor, dimension: -1, start: range.lowerBound, length: range.count, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
     subscript(_: (UnboundedRange_) -> (), range: PartialRangeFrom<Int>) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
+        let graph = self.graph.graph
         assert(self.tensor.shape?.last?.intValue ?? 0 >= range.lowerBound)
         let len = self.tensor.shape?.last ?? 0
         

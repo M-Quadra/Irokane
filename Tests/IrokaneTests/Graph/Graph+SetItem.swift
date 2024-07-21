@@ -16,7 +16,7 @@ struct GraphSetItem {
     @Test("x[mask] = a")
     func byMaskConstant() async throws {
         let graph = Graph()
-        let x = try MLMultiArray((0..<6)).ik.toTensor(at: graph)
+        var x = try MLMultiArray((0..<6)).ik.toTensor(at: graph)
             .reshape([2, 3])
         let mask = try MLMultiArray([
             0, 1, 0,
@@ -44,7 +44,7 @@ struct GraphSetItem {
     func byMaskTensor() async throws {
         let graph = Graph()
         
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        var x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
             .reshape([2, 3])
         let mask = try MLMultiArray([
             0, 1, 0,
@@ -73,7 +73,7 @@ struct GraphSetItem {
     @Test("x[..., i] = a")
     func setLast0() async throws {
         let graph = Graph()
-        let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
+        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
         x[..., 1] .= 2
         
@@ -92,7 +92,7 @@ struct GraphSetItem {
     @Test("x[..., -i] = a")
     func setLast1() async throws {
         let graph = Graph()
-        let x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
+        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
         
         x[..., -1] .= 2
         
@@ -110,7 +110,7 @@ struct GraphSetItem {
     @Test("x[..., -1] += a")
     func addLast() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        var x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
         x[..., -1] += 1
         

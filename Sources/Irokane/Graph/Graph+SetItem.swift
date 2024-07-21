@@ -13,7 +13,7 @@ enum Subscript {
 }
 
 public extension Graph.Tensor { struct Sub: ~Copyable {
-    let base: Graph.Tensor
+    let base: UnsafeMutablePointer<Graph.Tensor>
     let sub: Subscript
 }}
 
@@ -32,18 +32,16 @@ public extension Graph.Tensor.Sub {
     static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
         switch lhs.sub {
         case .lastIndex(let i):
-            lhs.base.setLast(index: i, with: rhs)
+            lhs.base.pointee.setLast(index: i, with: rhs)
         case .mask(let m):
-            assert(m.operation.graph == lhs.base.graph.graph)
-            lhs.base.setBy(mask: m, with: rhs)
+            lhs.base.pointee.setBy(mask: m, with: rhs)
         }
     }
     
     static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Graph.Tensor) {
-        assert(lhs.base.graph.graph == rhs.graph.graph)
         switch lhs.sub {
         case .mask(let m):
-            lhs.base.setBy(mask: m, with: rhs.tensor)
+            lhs.base.pointee.setBy(mask: m, with: rhs.tensor)
         default: assertionFailure("TODO")
         }
     }
@@ -51,7 +49,7 @@ public extension Graph.Tensor.Sub {
     static func += (lhs: borrowing Graph.Tensor.Sub, rhs: Double) {
         switch lhs.sub {
         case .lastIndex(let i):
-            lhs.base.addLast(index: i, with: rhs)
+            lhs.base.pointee.addLast(index: i, with: rhs)
         default: assertionFailure("TODO")
         }
     }
@@ -60,21 +58,23 @@ public extension Graph.Tensor.Sub {
 public extension Graph.Tensor {
     
     // x[..., i]
-    subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph.Tensor.Sub {
-        .init(base: self, sub: .lastIndex(i: index))
-    }
+    subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph.Tensor.Sub { mutating get {
+        let ptr = withUnsafeMutablePointer(to: &self) { $0 }
+        return .init(base: ptr, sub: .lastIndex(i: index))
+    }}
     
     // x[mask]
-    subscript(mask: Graph.Tensor) -> Graph.Tensor.Sub {
+    subscript(mask: Graph.Tensor) -> Graph.Tensor.Sub { mutating get {
         assert(self.graph === mask.graph)
-        return .init(base: self, sub: .mask(m: mask.tensor))
-    }
+        let ptr = withUnsafeMutablePointer(to: &self) { $0 }
+        return .init(base: ptr, sub: .mask(m: mask.tensor))
+    }}
 }
 
 fileprivate extension Graph.Tensor {
     
     /// x[..., i] .= a
-    borrowing func setLast(index: Int, with a: Double) {
+    mutating func setLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
@@ -112,7 +112,7 @@ fileprivate extension Graph.Tensor {
     }
     
     /// x[mask] .= a
-    borrowing func setBy(mask: MPSGraphTensor, with a: Double) {
+    mutating func setBy(mask: MPSGraphTensor, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
         assert(x.shape != nil)
         assert(x.shape == mask.shape)
@@ -131,7 +131,7 @@ fileprivate extension Graph.Tensor {
     }
     
     /// x[mask] .= y
-    borrowing func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
+    mutating func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
         let graph = self.graph.graph, x = self.tensor
         assert(graph == mask.operation.graph)
         assert(mask.operation.graph == y.operation.graph)
@@ -146,7 +146,7 @@ fileprivate extension Graph.Tensor {
     }
     
     /// x[..., i] += a
-    borrowing func addLast(index: Int, with a: Double) {
+    mutating func addLast(index: Int, with a: Double) {
         let graph = self.graph.graph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")

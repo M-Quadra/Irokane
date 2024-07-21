@@ -19,7 +19,7 @@ public class Graph {
     }
 }
 
-public extension Graph { class Tensor {
+public extension Graph { struct Tensor {
     public let graph: Graph
     public internal(set) var tensor: MPSGraphTensor
     
