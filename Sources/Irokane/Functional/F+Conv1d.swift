@@ -56,7 +56,7 @@ public extension Functional {
             targetOperations: nil
         )[consume y] else { throw Errors.msg("graph.run") }
         
-        return try yData.toMLMultiArray()
+        return try yData.ik.toMLMultiArray()
     }
 }
 

@@ -30,27 +30,19 @@ extension MPSGraphTensorData {
         default: throw .todo("\(self.dataType)")
         }
     }
-    
-    func toMLMultiArray() throws -> MLMultiArray {
-        let dtype: MLMultiArrayDataType = switch self.dataType {
-        case .float16: .float16
-        case .float32: .float32
-        case .int32: .int32
-        default: throw Errors.todo("\(self.dataType)")
-        }
         
-        let arr = try MLMultiArray(shape: self.shape, dataType: dtype)
-        try arr.withUnsafeMutableBytes { ptr, strides in
-            guard let dst = ptr.baseAddress else { throw Errors.msg("ptr.baseAddress") }
-            self.mpsndarray().readBytes(consume dst, strideBytes: nil)
-        }
-        return arr
-    }
-    
     func toInt32s() throws(Errors) -> [Int32] {
         if self.dataType != .int32 { throw .msg("\(self.dataType)") }
         let cnt = self.shape.map { $0.intValue }.reduce(1, *)
         var arr = [Int32](repeating: Int32.min, count: cnt)
+        self.mpsndarray().readBytes(&arr, strideBytes: nil)
+        return arr
+    }
+    
+    func toFloat16s() throws(Errors) -> [Float16] {
+        if self.dataType != .float16 { throw .msg("\(self.dataType)") }
+        let cnt = self.shape.map { $0.intValue }.reduce(1, *)
+        var arr = [Float16](repeating: -.greatestFiniteMagnitude, count: cnt)
         self.mpsndarray().readBytes(&arr, strideBytes: nil)
         return arr
     }
