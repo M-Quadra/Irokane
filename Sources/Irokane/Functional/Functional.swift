@@ -36,9 +36,9 @@ public extension Functional {
         return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
     
-    static func softplus(_ input: borrowing Graph.Tensor, beta: Int = 1, threshold: Double = 20) -> Graph.Tensor {
+    static func softplus(_ input: borrowing Graph.Tensor, beta: Double = 1, threshold: Double = 20) -> Graph.Tensor {
         let graph = input.graph.graph, x = input.tensor
-        let b = graph.constant(Double(beta), dataType: x.dataType)
+        let b = graph.constant(beta, dataType: x.dataType)
         let t = graph.constant(threshold, dataType: x.dataType)
         assert(x.dataType != .int32)
         
