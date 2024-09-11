@@ -26,7 +26,7 @@ public extension Wrapper where Base == MPSGraphTensorData {
         let arr = try MLMultiArray(shape: data.shape, dataType: dtype)
         try arr.withUnsafeMutableBytes { ptr, strides in
             guard let dst = ptr.baseAddress else { throw Errors.msg("ptr.baseAddress") }
-            data.mpsndarray().readBytes(consume dst, strideBytes: nil)
+            data.mpsndarray().readBytes(dst, strideBytes: nil)
         }
         return arr
     }
