@@ -257,4 +257,22 @@ struct GraphTests {
         let arr = try yData.toFloat32s()
         #expect(arr == [1.0, 2.7182817, 7.3890557])
     }
+    
+    @Test("ceil(x)")
+    func ceil() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray([0.1, 1.5, 2.9]).ik.toTensor(at: graph)
+        
+        let y = Irokane.ceil(x)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3])
+        
+        let arr = try yData.toFloat32s()
+        #expect(arr == [1, 2, 3])
+    }
 }

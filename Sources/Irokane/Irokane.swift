@@ -57,3 +57,10 @@ public func exp(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
     let y = graph.exponent(with: consume x, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
+
+public func ceil(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    
+    let y = graph.ceil(with: consume x, name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
+}
