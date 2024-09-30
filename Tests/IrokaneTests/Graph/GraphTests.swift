@@ -238,4 +238,23 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [1, 2, 3])
     }
+    
+    @Test("exp(x)")
+    func exp() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
+            .cast(to: .float32)
+        
+        let y = Irokane.exp(x)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3])
+        
+        let arr = try yData.toFloat32s()
+        #expect(arr == [1.0, 2.7182817, 7.3890557])
+    }
 }

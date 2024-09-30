@@ -8,14 +8,14 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
-#if swift(>=6.1)
+#if !SWIFT_PACKAGE || swift(>=6.1)
 @available(iOS 18.0, *)
 public extension MLTensor {
     var ik: Wrapper<MLTensor> { Wrapper(base: self) }
 }
+#else
+#warning("理解不能, 疑似编译器BUG, 从 beta3 开始报错, 需要在库外重新定义一遍, 不知6.1是否会正常")
 #endif
-// 理解不能, 疑似编译器BUG, 需要在库外重新定义一遍, 不知6.1是否会正常
-// 从 beta3 开始报错, 不知啥时修
 
 @available(iOS 18.0, *)
 public extension Wrapper<MLTensor> {

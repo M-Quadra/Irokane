@@ -50,3 +50,10 @@ public func cat(_ input: borrowing Graph.Tensor, _ other: borrowing Graph.Tensor
     let y = graph.concatTensor(consume x, with: other.tensor, dimension: dim, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
+
+public func exp(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    
+    let y = graph.exponent(with: consume x, name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
+}
