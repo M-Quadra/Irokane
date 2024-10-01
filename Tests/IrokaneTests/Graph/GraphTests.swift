@@ -65,16 +65,35 @@ struct GraphTests {
         let x0 = x.reshape([2, 3])
         
         let y = Irokane.sum(x0, dim: -1)
-
+        
         guard let yData = graph.graph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [2])
-
+        
         let arr = try yData.toInt32s()
         #expect(arr == [3, 12])
+    }
+    
+    @Test("sum(x, dims=[a, b])")
+    func sumDims() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 2, 3])
+        
+        let y = Irokane.sum(x, dims: [1, 2])
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [15])
     }
     
     @Test("x.gather(-1, idx)")

@@ -5,6 +5,8 @@
 //  Created by m_quadra on 2024/7/5.
 //
 
+import Foundation
+
 public func cumsum(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
     let graph = input.graph.graph, x = input.tensor
     
@@ -17,6 +19,14 @@ public func sum(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
     
     let x0 = graph.reductionSum(with: consume x, axis: dim, name: nil)
     let y = graph.squeeze(consume x0, axis: dim, name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
+}
+public func sum(_ input: borrowing Graph.Tensor, dims: [Int]) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    let axes = dims as [NSNumber]
+    
+    let x0 = graph.reductionSum(with: consume x, axes: axes, name: nil)
+    let y = graph.squeeze(consume x0, axes: consume axes, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
 
