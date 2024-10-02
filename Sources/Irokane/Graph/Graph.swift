@@ -77,4 +77,12 @@ public extension Graph.Tensor {
         let y = graph.power(consume x, consume a, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
+    
+    borrowing func max() -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let x0 = graph.reductionMaximum(with: consume x, axes: nil, name: nil)
+        let y = graph.squeeze(consume x0, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
 }

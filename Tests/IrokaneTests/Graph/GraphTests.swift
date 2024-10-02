@@ -294,4 +294,41 @@ struct GraphTests {
         let arr = try yData.toFloat32s()
         #expect(arr == [1, 2, 3])
     }
+    
+    @Test("x.max(), 1d")
+    func max1d() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        
+        let y = x.max()
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [2])
+    }
+    
+    @Test("x.max(), 2d")
+    func max2d() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([2, 3])
+        
+        let y = x.max()
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [5])
+    }
 }
