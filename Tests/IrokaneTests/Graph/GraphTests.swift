@@ -331,4 +331,22 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [5])
     }
+    
+    @Test("arange(a)", arguments: 0...9)
+    func arange(len: Int) async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray([len]).ik.toTensor(at: graph)
+        
+        let y = Irokane.arange(x)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [len as NSNumber])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == (0..<len).map { Int32($0) })
+    }
 }
