@@ -349,4 +349,23 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == (0..<len).map { Int32($0) })
     }
+    
+    @Test("x < y")
+    func lessThan() async throws {
+        let graph = Irokane.Graph()
+        let x0 = try MLMultiArray([1, 3, 5]).ik.toTensor(at: graph)
+        let x1 = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
+        
+        let y = x0 < x1
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3])
+
+        let arr = try yData.toBools()
+        #expect(arr == [true, true, true])
+    }
 }

@@ -146,4 +146,12 @@ public extension Graph.Tensor {
         let y = graph.subtraction(consume a, consume x, name: nil)
         return Graph.Tensor(graph: rhs.graph, tensor: consume y)
     }
+    
+    static func < (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
+
+        let y = graph.lessThan(x, rhs.tensor, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
+    }
 }
