@@ -15,10 +15,10 @@ fileprivate typealias F = Irokane.Functional
 @Suite("Graph F.")
 struct FunctionalGraphTests {
     
-    @Test func pad() async throws {
-        let graph = Graph()
-        
+    @Test func pad0() async throws {
+        let graph = Irokane.Graph()
         let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.toTensor(at: graph)
+        
         let y = F.pad(x, pad: (3, 4))
         
         guard let yData = graph.graph.run(
@@ -27,6 +27,28 @@ struct FunctionalGraphTests {
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [1, 9])
+    }
+    @Test func pad1() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(1...6).ik.toTensor(at: graph)
+            .reshape([1, 3, 2])
+        
+        let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1, 4, 2])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [
+            0, 0,
+            1, 2,
+            3, 4,
+            5, 6
+        ])
     }
     
     @Test func softmax() async throws {

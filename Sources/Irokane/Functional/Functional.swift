@@ -27,6 +27,26 @@ public extension Functional {
         let y = graph.padTensor(x, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
         return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
+    static func pad(_ input: borrowing Graph.Tensor, pad: borrowing [(left: Int, right: Int)]) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
+        guard let rank = x.shape?.count, rank > 0 else {
+            assertionFailure("input.shape is nil")
+            return Graph.Tensor(graph: input.graph, tensor: consume x)
+        }
+        guard pad.count <= rank else {
+            assertionFailure("pad is invalid")
+            return Graph.Tensor(graph: input.graph, tensor: consume x)
+        }
+        var left = [NSNumber](repeating: 0, count: rank)
+        var right = [NSNumber](repeating: 0, count: rank)
+        for (i, v) in pad.enumerated() {
+            left[rank-1 - i] = v.left as NSNumber
+            right[rank-1 - i] = v.right as NSNumber
+        }
+        
+        let y = graph.padTensor(x, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
+    }
     
     static func softmax(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
         let graph = input.graph.graph, x = input.tensor
