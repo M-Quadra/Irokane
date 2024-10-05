@@ -85,4 +85,11 @@ public extension Graph.Tensor {
         let y = graph.squeeze(consume x0, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
+    
+    borrowing func transpose(_ dim0: Int, _ dim1: Int) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.transposeTensor(consume x, dimension: dim0, withDimension: dim1, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
 }

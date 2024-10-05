@@ -368,4 +368,27 @@ struct GraphTests {
         let arr = try yData.toBools()
         #expect(arr == [true, true, true])
     }
+    
+    @Test("x.transpose(a, b)")
+    func transpose() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 2, 3])
+        
+        let y = x.transpose(0, 2)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [3, 2, 1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [
+            0, 3,
+            1, 4,
+            2, 5,
+        ])
+    }
 }
