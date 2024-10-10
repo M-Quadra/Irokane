@@ -391,4 +391,27 @@ struct GraphTests {
             2, 5,
         ])
     }
+    
+    @Test("matmul(x, y)")
+    func matmul() async throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(1...4).ik.toTensor(at: graph)
+            .cast(to: .float16)
+            .reshape([2, 2])
+        let y = try MLMultiArray(5...8).ik.toTensor(at: graph)
+            .cast(to: .float16)
+            .reshape([2, 2])
+        
+        let z = Irokane.matmul(x, y)
+        
+        guard let zData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [z.tensor],
+            targetOperations: nil
+        )[z.tensor] else { throw Errors.msg("empty result") }
+        #expect(zData.shape == [2, 2])
+        
+        let arr = try zData.toFloat16s()
+        #expect(arr == [19, 22, 43, 50])
+    }
 }
