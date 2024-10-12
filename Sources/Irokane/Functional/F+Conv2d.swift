@@ -43,6 +43,7 @@ public extension Functional {
         return try yData.toMLTensor()
     }
     
+    @available(iOS 16.0, *)
     static func conv2d(
         input: MLMultiArray,
         weight: MLMultiArray

@@ -8,6 +8,7 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 public extension Tensor {
     
     func getItem(_: (UnboundedRange_) -> (), _ range: PartialRangeUpTo<Int>) async throws -> Tensor {

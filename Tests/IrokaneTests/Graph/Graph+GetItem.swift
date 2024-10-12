@@ -13,6 +13,7 @@ import MetalPerformanceShadersGraph
 @Suite("Graph GetItem")
 struct GraphGetItem {
     
+    @available(iOS 17.0, *)
     @Test("x[mask]")
     func getByMask() async throws {
         let graph = Graph()
@@ -37,6 +38,7 @@ struct GraphGetItem {
         #expect(arr == [1, 3, 5])
     }
     
+    @available(iOS 17.0, *)
     @Test("x[mask, :]")
     func getByMaskSlice() async throws {
         let graph = Graph()
@@ -57,6 +59,7 @@ struct GraphGetItem {
         #expect(arr == [3, 4, 5])
     }
     
+    @available(iOS 15.4, *)
     @Test("x[..., i:]")
     func getItemFrom() async throws {
         let graph = Graph()
@@ -75,6 +78,7 @@ struct GraphGetItem {
         #expect(arr == [1, 2])
     }
     
+    @available(iOS 15.4, *)
     @Test("x[..., :i]")
     func getItemTo() async throws {
         let graph = Graph()
@@ -93,6 +97,7 @@ struct GraphGetItem {
         #expect(arr == [0, 1])
     }
     
+    @available(iOS 15.4, *)
     @Test("x[..., None]")
     func getItemNone() async throws {
         let graph = Graph()
@@ -111,6 +116,7 @@ struct GraphGetItem {
         #expect(arr == [0, 1, 2])
     }
     
+    @available(iOS 15.4, *)
     @Test("x[..., i]")
     func getItemAt() async throws {
         let graph = Graph()

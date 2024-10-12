@@ -9,6 +9,7 @@ import CoreML
 import MetalPerformanceShadersGraph
 import Accelerate
 
+@available(iOS 15.4, *)
 extension MLMultiArray {
     
     func toTensorData() throws(Errors) -> MPSGraphTensorData {
@@ -37,6 +38,7 @@ extension MLMultiArray {
 }
 
 // MARK: - Private
+@available(iOS 15.4, *)
 fileprivate extension MLMultiArray {
     
     func fp64ToTensorData() throws(Errors) -> MPSGraphTensorData {

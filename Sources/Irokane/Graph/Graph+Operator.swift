@@ -7,21 +7,8 @@
 
 import Foundation
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
-    
-    // x / y
-    static func / (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(lhs.graph === rhs.graph)
-        
-        var y = rhs.tensor
-        if x.dataType != y.dataType {
-            y = graph.cast(y, to: x.dataType, name: nil)
-        }
-        
-        let z = graph.division(consume x, consume y, name: nil)
-        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
-    }
     
     // x / a
     static func / (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
@@ -37,16 +24,6 @@ public extension Graph.Tensor {
         let graph = tensor.graph.graph, x = tensor.tensor
         
         let y = graph.negative(with: x, name: nil)
-        return Graph.Tensor(graph: tensor.graph, tensor: consume y)
-    }
-    
-    // ~x
-    prefix static func ~ (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = tensor.graph.graph, x = tensor.tensor
-        assert(x.dataType == .bool)
-        let a = graph.constant(0, dataType: x.dataType)
-        
-        let y = graph.equal(consume x, consume a, name: nil)
         return Graph.Tensor(graph: tensor.graph, tensor: consume y)
     }
     
@@ -71,18 +48,6 @@ public extension Graph.Tensor {
         let y = graph.constant(rhs, dataType: x.dataType)
         
         let z = graph.lessThanOrEqualTo(consume x, consume y, name: nil)
-        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
-    }
-    
-    static func & (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
-        var y = rhs.tensor
-        if x.dataType != y.dataType {
-            y = graph.cast(y, to: x.dataType, name: nil)
-        }
-        
-        let z = graph.logicalAND(consume x, consume y, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume z)
     }
     
@@ -153,5 +118,45 @@ public extension Graph.Tensor {
 
         let y = graph.lessThan(x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
+    }
+}
+
+@available(iOS 15.0, *)
+public extension Graph.Tensor {
+    
+    // x / y
+    static func / (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(lhs.graph === rhs.graph)
+        
+        var y = rhs.tensor
+        if x.dataType != y.dataType {
+            y = graph.cast(y, to: x.dataType, name: nil)
+        }
+        
+        let z = graph.division(consume x, consume y, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
+    }
+    
+    // ~x
+    prefix static func ~ (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = tensor.graph.graph, x = tensor.tensor
+        assert(x.dataType == .bool)
+        let a = graph.constant(0, dataType: x.dataType)
+        
+        let y = graph.equal(consume x, consume a, name: nil)
+        return Graph.Tensor(graph: tensor.graph, tensor: consume y)
+    }
+    
+    static func & (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        assert(graph == rhs.graph.graph)
+        var y = rhs.tensor
+        if x.dataType != y.dataType {
+            y = graph.cast(y, to: x.dataType, name: nil)
+        }
+        
+        let z = graph.logicalAND(consume x, consume y, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume z)
     }
 }

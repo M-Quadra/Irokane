@@ -13,9 +13,10 @@ import MetalPerformanceShadersGraph
 @Suite("Graph SetItem")
 struct GraphSetItem {
     
+    @available(iOS 15.4, *)
     @Test("x[mask] = a")
     func byMaskConstant() async throws {
-        let graph = Graph()
+        let graph = Irokane.Graph()
         var x = try MLMultiArray((0..<6)).ik.toTensor(at: graph)
             .reshape([2, 3])
         let mask = try MLMultiArray([
@@ -40,9 +41,10 @@ struct GraphSetItem {
         ])
     }
     
+    @available(iOS 17.0, *)
     @Test("x[mask] = y")
     func byMaskTensor() async throws {
-        let graph = Graph()
+        let graph = Irokane.Graph()
         
         var x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
             .reshape([2, 3])
@@ -107,6 +109,7 @@ struct GraphSetItem {
         #expect(arr == [0.5, 2])
     }
     
+    @available(iOS 15.4, *)
     @Test("x[..., -1] += a")
     func addLast() async throws {
         let graph = Graph()

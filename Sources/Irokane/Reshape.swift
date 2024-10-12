@@ -8,6 +8,7 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 public func reshape(tensor: Tensor, to shape: consuming [Int]) async throws -> Tensor {
     if #available(iOS 18.0, *),
        let ts = tensor.base as? MLTensor {
@@ -26,6 +27,7 @@ public func reshape(tensor: Tensor, to shape: consuming [Int]) async throws -> T
     return yData.toTensor()
 }
 
+@available(iOS 16.0, *)
 public func permute(tensor: Tensor, dims: consuming [Int]) async throws -> Tensor {
     if #available(iOS 18.0, *),
        let ts = tensor.base as? MLTensor,

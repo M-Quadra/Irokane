@@ -7,11 +7,13 @@
 
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 enum Subscript {
     case lastIndex(i: Int)
     case mask(m: MPSGraphTensor)
 }
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor { struct Sub: ~Copyable {
     let base: UnsafeMutablePointer<Graph.Tensor>
     let sub: Subscript
@@ -20,6 +22,7 @@ public extension Graph.Tensor { struct Sub: ~Copyable {
 // replace `=`
 infix operator .=
 
+@available(iOS 15.0, *)
 public extension Graph.Tensor.Sub {
     /*
      the result of subscript can't consume directly.
@@ -38,6 +41,7 @@ public extension Graph.Tensor.Sub {
         }
     }
     
+    @available(iOS 17.0, *)
     static func .= (lhs: borrowing Graph.Tensor.Sub, rhs: Graph.Tensor) {
         switch lhs.sub {
         case .mask(let m):
@@ -55,6 +59,7 @@ public extension Graph.Tensor.Sub {
     }
 }
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
     
     // x[..., i]
@@ -71,6 +76,7 @@ public extension Graph.Tensor {
     }}
 }
 
+@available(iOS 15.0, *)
 fileprivate extension Graph.Tensor {
     
     /// x[..., i] .= a
@@ -131,6 +137,7 @@ fileprivate extension Graph.Tensor {
     }
     
     /// x[mask] .= y
+    @available(iOS 17.0, *)
     mutating func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
         let graph = self.graph.graph, x = self.tensor
         assert(graph == mask.operation.graph)

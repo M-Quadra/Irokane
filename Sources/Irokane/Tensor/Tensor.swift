@@ -12,6 +12,7 @@ protocol Tensorable {
     
     func toTensor() -> Tensor
     
+    @available(iOS 14.0, *)
     func toMPS(graph: MPSGraph) async throws -> (tensor: MPSGraphTensor, data: MPSGraphTensorData)
 }
 
@@ -19,6 +20,7 @@ public struct Tensor {
     let base: Tensorable
 }
 
+@available(iOS 14.0, *)
 public extension Tensor {
     
     var shape: [Int] {

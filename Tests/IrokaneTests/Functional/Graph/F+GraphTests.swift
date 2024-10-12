@@ -15,6 +15,7 @@ fileprivate typealias F = Irokane.Functional
 @Suite("Graph F.")
 struct FunctionalGraphTests {
     
+    @available(iOS 16.0, *)
     @Test func pad0() async throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.toTensor(at: graph)
@@ -28,6 +29,7 @@ struct FunctionalGraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [1, 9])
     }
+    @available(iOS 15.4, *)
     @Test func pad1() async throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(1...6).ik.toTensor(at: graph)
@@ -51,6 +53,7 @@ struct FunctionalGraphTests {
         ])
     }
     
+    @available(iOS 15.4, *)
     @Test func softmax() async throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
@@ -73,6 +76,7 @@ struct FunctionalGraphTests {
         ])
     }
     
+    @available(iOS 15.4, *)
     @Test func softplus() async throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)

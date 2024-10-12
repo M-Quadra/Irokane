@@ -8,6 +8,7 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 15.4, *)
 extension MLMultiArray: Tensorable {
     
     func toTensor() -> Tensor {

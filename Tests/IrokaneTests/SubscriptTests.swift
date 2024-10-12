@@ -11,6 +11,7 @@ import CoreML
 
 struct SubscriptTests {
     
+    @available(iOS 16.0, *)
     @Test("..<a MLMultiArray")
     func partialRangeUpToMLMultiArray() async throws {
         let x = try MLMultiArray(shape: [1, 1, 83, 29], dataType: .float16)

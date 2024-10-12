@@ -11,6 +11,7 @@ import MetalPerformanceShadersGraph
 // MARK: - Public
 public extension Functional {
     
+    @available(iOS 16.0, *)
     static func conv1d(
         input: MLMultiArray,
         weight: MLMultiArray,

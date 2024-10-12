@@ -8,6 +8,7 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 extension MPSGraphTensorData {
     
     @available(iOS 18.0, *)
@@ -55,6 +56,7 @@ extension MPSGraphTensorData {
         return arr
     }
     
+    @available(iOS 15.0, *)
     func toBools() throws(Errors) -> [Bool] {
         if self.dataType != .bool { throw .msg("\(self.dataType)") }
         let cnt = self.shape.map { $0.intValue }.reduce(1, *)

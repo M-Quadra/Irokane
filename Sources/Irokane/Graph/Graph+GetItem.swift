@@ -9,6 +9,7 @@ import Foundation
 
 public enum Mark {}
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
     
     // x[..., ..<i]
@@ -40,6 +41,7 @@ public extension Graph.Tensor {
     }
     
     // x[..., i]
+    @available(iOS 15.4, *)
     subscript(_: (UnboundedRange_) -> (), index: Int) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
@@ -48,6 +50,7 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
+    @available(iOS 17.0, *)
     subscript(mask: Graph.Tensor) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         assert(graph == mask.graph.graph)
@@ -64,6 +67,7 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
+    @available(iOS 17.0, *)
     subscript(mask: Graph.Tensor, _: (UnboundedRange_) -> ()) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         assert(graph == mask.graph.graph)
@@ -76,6 +80,7 @@ public extension Graph.Tensor {
     }
     
     /// x[..., nil]
+    @available(iOS 15.4, *)
     subscript(_: (UnboundedRange_) -> (), mark: Mark?) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         

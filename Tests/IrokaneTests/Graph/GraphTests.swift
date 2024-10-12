@@ -13,9 +13,10 @@ import MetalPerformanceShadersGraph
 @Suite("Graph")
 struct GraphTests {
     
+    @available(iOS 15.4, *)
     @Test("x >= y")
-    func greaterThanOrEqualTensor() async throws {
-        let graph = Graph()
+    func greaterThanOrEqualTensor() throws {
+        let graph = Irokane.Graph()
         let x = try MLMultiArray([0, 1, 0]).ik.toTensor(at: graph)
         let y = try MLMultiArray([
             1, 0,
@@ -40,8 +41,9 @@ struct GraphTests {
         ])
     }
     
+    @available(iOS 15.4, *)
     @Test("sum(x, dim=-1), 1d")
-    func sum1d() async throws {
+    func sum1d() throws {
         let graph = Graph()
         let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
         
@@ -58,8 +60,9 @@ struct GraphTests {
         #expect(arr == [3])
     }
     
+    @available(iOS 15.4, *)
     @Test("sum(x, dim=-1), 2d")
-    func sum2d() async throws {
+    func sum2d() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
         let x0 = x.reshape([2, 3])
@@ -77,8 +80,9 @@ struct GraphTests {
         #expect(arr == [3, 12])
     }
     
+    @available(iOS 15.4, *)
     @Test("sum(x, dims=[a, b])")
-    func sumDims() async throws {
+    func sumDims() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
             .reshape([1, 2, 3])
@@ -96,8 +100,9 @@ struct GraphTests {
         #expect(arr == [15])
     }
     
+    @available(iOS 15.4, *)
     @Test("x.gather(-1, idx)")
-    func gather() async throws {
+    func gather() throws {
         let graph = Graph()
         let x = try MLMultiArray([
             0, 1,
@@ -125,8 +130,9 @@ struct GraphTests {
         #expect(arr == [0, 3, 4])
     }
     
+    @available(iOS 15.4, *)
     @Test("x + y")
-    func plus() async throws {
+    func plus() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
@@ -144,8 +150,9 @@ struct GraphTests {
         #expect(arr == [1, 3, 5])
     }
     
+    @available(iOS 15.4, *)
     @Test("x * y")
-    func multiply() async throws {
+    func multiply() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
@@ -163,8 +170,9 @@ struct GraphTests {
         #expect(arr == [0, 2, 6])
     }
     
+    @available(iOS 15.4, *)
     @Test("x.pow(a)")
-    func pow() async throws {
+    func pow() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
@@ -181,7 +189,8 @@ struct GraphTests {
         #expect(arr == [0, 1, 4])
     }
     
-    @Test func sqrt() async throws {
+    @available(iOS 15.4, *)
+    @Test func sqrt() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
@@ -198,8 +207,9 @@ struct GraphTests {
         #expect(arr == [0, 1, 2])
     }
     
+    @available(iOS 15.4, *)
     @Test("cat([x, y], 1)")
-    func cat() async throws {
+    func cat() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         let y = try MLMultiArray(3..<6).ik.toTensor(at: graph)
@@ -222,8 +232,9 @@ struct GraphTests {
         ])
     }
     
+    @available(iOS 15.4, *)
     @Test("maximum(x, a)")
-    func maximum() async throws {
+    func maximum() throws {
         let graph = Graph()
         let x = try MLMultiArray([Float.nan, 1]).ik.toTensor(at: graph)
         
@@ -240,8 +251,9 @@ struct GraphTests {
         #expect(arr == [0, 1])
     }
     
+    @available(iOS 15.4, *)
     @Test("x / a")
-    func division() async throws {
+    func division() throws {
         let graph = Graph()
         let x = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
         
@@ -258,8 +270,9 @@ struct GraphTests {
         #expect(arr == [1, 2, 3])
     }
     
+    @available(iOS 15.4, *)
     @Test("exp(x)")
-    func exp() async throws {
+    func exp() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
             .cast(to: .float32)
@@ -277,8 +290,9 @@ struct GraphTests {
         #expect(arr == [1.0, 2.7182817, 7.3890557])
     }
     
+    @available(iOS 15.4, *)
     @Test("ceil(x)")
-    func ceil() async throws {
+    func ceil() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray([0.1, 1.5, 2.9]).ik.toTensor(at: graph)
         
@@ -295,8 +309,9 @@ struct GraphTests {
         #expect(arr == [1, 2, 3])
     }
     
+    @available(iOS 15.4, *)
     @Test("x.max(), 1d")
-    func max1d() async throws {
+    func max1d() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
@@ -313,8 +328,9 @@ struct GraphTests {
         #expect(arr == [2])
     }
     
+    @available(iOS 15.4, *)
     @Test("x.max(), 2d")
-    func max2d() async throws {
+    func max2d() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
             .reshape([2, 3])
@@ -332,8 +348,9 @@ struct GraphTests {
         #expect(arr == [5])
     }
     
+    @available(iOS 15.4, *)
     @Test("arange(a)", arguments: 0...9)
-    func arange(len: Int) async throws {
+    func arange(len: Int) throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray([len]).ik.toTensor(at: graph)
         
@@ -350,8 +367,9 @@ struct GraphTests {
         #expect(arr == (0..<len).map { Int32($0) })
     }
     
+    @available(iOS 15.4, *)
     @Test("x < y")
-    func lessThan() async throws {
+    func lessThan() throws {
         let graph = Irokane.Graph()
         let x0 = try MLMultiArray([1, 3, 5]).ik.toTensor(at: graph)
         let x1 = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
@@ -369,8 +387,9 @@ struct GraphTests {
         #expect(arr == [true, true, true])
     }
     
+    @available(iOS 15.4, *)
     @Test("x.transpose(a, b)")
-    func transpose() async throws {
+    func transpose() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
             .reshape([1, 2, 3])
@@ -392,8 +411,9 @@ struct GraphTests {
         ])
     }
     
+    @available(iOS 15.4, *)
     @Test("matmul(x, y)")
-    func matmul() async throws {
+    func matmul() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(1...4).ik.toTensor(at: graph)
             .cast(to: .float16)

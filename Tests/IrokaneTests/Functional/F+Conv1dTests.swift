@@ -20,6 +20,7 @@ fileprivate let isArm64 = false
 @Suite("F.conv1d Tests", .enabled(if: isArm64))
 struct Conv1dTests {
     
+    @available(iOS 16.0, *)
     @Test("kernelSize", arguments: 1...3)
     func test(k: Int) async throws {
         let n: NSNumber = 1, cIn: NSNumber = 2, lIn: NSNumber = 3
@@ -39,6 +40,7 @@ struct Conv1dTests {
         }
     }
     
+    @available(iOS 16.0, *)
     @Test("outChannels", arguments: 1...3)
     func test(cOut: Int) async throws {
         let n: NSNumber = 1, cIn: NSNumber = 2, lIn: NSNumber = 3
@@ -58,6 +60,7 @@ struct Conv1dTests {
         }
     }
     
+    @available(iOS 16.0, *)
     @Test("bias", arguments: 1..<10, [0.0, 0.5, 1.0])
     func test(cOut: Int, bias: NSNumber) async throws {
         let n: NSNumber = 1, cIn: NSNumber = 2, lIn: NSNumber = 3

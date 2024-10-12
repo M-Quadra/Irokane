@@ -8,11 +8,13 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 public extension MPSGraphTensorData {
     var ik: Wrapper<MPSGraphTensorData> { Wrapper(base: self) }
 }
 
-public extension Wrapper where Base == MPSGraphTensorData {
+@available(iOS 16.0, *)
+public extension Wrapper<MPSGraphTensorData> {
     
     consuming func toMLMultiArray() throws -> MLMultiArray {
         let data = self.base

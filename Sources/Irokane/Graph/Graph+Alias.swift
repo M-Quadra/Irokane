@@ -7,13 +7,16 @@
 
 import Foundation
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
     
+    @available(iOS 15.4, *)
     borrowing func sum(_ dim: Int) -> Graph.Tensor {
         return Irokane.sum(self, dim: dim)
     }
     
     /// int64
+    @available(iOS 15.0, *)
     borrowing func long() -> Graph.Tensor {
         return self.cast(to: .int64)
     }

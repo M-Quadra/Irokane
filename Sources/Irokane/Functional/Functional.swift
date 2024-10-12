@@ -11,6 +11,19 @@ public struct Functional {
     fileprivate init() {}
 }
 
+@available(iOS 14.0, *)
+public extension Functional {
+    
+    static func softmax(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
+        let graph = input.graph.graph, x = input.tensor
+        assert(x.dataType != .int32)
+        
+        let y = graph.softMax(with: x, axis: dim, name: nil)
+        return Graph.Tensor(graph: input.graph, tensor: consume y)
+    }
+}
+
+@available(iOS 15.0, *)
 public extension Functional {
     
     static func pad(_ input: borrowing Graph.Tensor, pad: (left: Int, right: Int)) -> Graph.Tensor {
@@ -45,14 +58,6 @@ public extension Functional {
         }
         
         let y = graph.padTensor(x, with: .zero, leftPadding: consume left, rightPadding: consume right, constantValue: 0, name: nil)
-        return Graph.Tensor(graph: input.graph, tensor: consume y)
-    }
-    
-    static func softmax(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
-        let graph = input.graph.graph, x = input.tensor
-        assert(x.dataType != .int32)
-        
-        let y = graph.softMax(with: x, axis: dim, name: nil)
         return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
     

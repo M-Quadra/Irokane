@@ -7,6 +7,7 @@
 
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
     
     static func zerosLike(_ input: borrowing Graph.Tensor) -> Graph.Tensor {

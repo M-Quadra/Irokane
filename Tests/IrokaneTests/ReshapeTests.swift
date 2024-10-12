@@ -11,6 +11,7 @@ import CoreML
 
 struct ReshapeTests {
     
+    @available(iOS 16.0, *)
     @Test("reshape MLMultiArray")
     func reshapeMLMultiArray() async throws {
         let x = try MLMultiArray(shape: [1, 29, 83], dataType: .float16)
@@ -30,6 +31,7 @@ struct ReshapeTests {
         #expect(y.shape == [1, 1, 29, 83])
     }
     
+    @available(iOS 16.0, *)
     @Test("permute MLMultiArray", arguments: 1..<10)
     func permuteMLMultiArray(len: Int) async throws {
         let shape = (1...len).map { Int.random(in: $0..<10) }

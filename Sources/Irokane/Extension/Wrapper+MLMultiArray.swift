@@ -12,7 +12,8 @@ public extension MLMultiArray {
     var ik: Wrapper<MLMultiArray> { Wrapper(base: self) }
 }
 
-public extension Wrapper where Base == MLMultiArray {
+@available(iOS 15.4, *)
+public extension Wrapper<MLMultiArray> {
     
     consuming func toTensor() -> Tensor {
         return Tensor(base: self.base)

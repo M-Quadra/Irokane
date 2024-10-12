@@ -8,6 +8,7 @@
 import CoreML
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 public class Graph {
     public let graph: MPSGraph = MPSGraph()
     public internal(set) var feeds: [MPSGraphTensor: MPSGraphTensorData] = [:]
@@ -19,6 +20,7 @@ public class Graph {
     }
 }
 
+@available(iOS 14.0, *)
 public extension Graph { struct Tensor {
     public let graph: Graph
     public internal(set) var tensor: MPSGraphTensor
@@ -29,10 +31,12 @@ public extension Graph { struct Tensor {
     }
 }}
 
+@available(iOS 14.0, *)
 public extension Graph.Tensor {
     
     var shape: [NSNumber] { self.tensor.shape ?? [] }
     
+    @available(iOS 15.0, *)
     borrowing func cast(to type: MPSDataType) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
@@ -47,12 +51,33 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
+    @available(iOS 16.0, *)
     borrowing func permute(_ dims: [NSNumber]) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
         let y = graph.transpose(consume x, permutation: dims, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
+    
+    /// x.pow(a)
+    borrowing func pow(_ exponent: Double) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        let a = graph.constant(exponent, dataType: x.dataType)
+        
+        let y = graph.power(consume x, consume a, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
+    
+    borrowing func transpose(_ dim0: Int, _ dim1: Int) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.transposeTensor(consume x, dimension: dim0, withDimension: dim1, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
+}
+
+@available(iOS 15.4, *)
+public extension Graph.Tensor {
     
     borrowing func unsqueeze(_ dim: Int) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
@@ -69,27 +94,11 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    /// x.pow(a)
-    borrowing func pow(_ exponent: Double) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        let a = graph.constant(exponent, dataType: x.dataType)
-        
-        let y = graph.power(consume x, consume a, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
-    }
-    
     borrowing func max() -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
         let x0 = graph.reductionMaximum(with: consume x, axes: nil, name: nil)
         let y = graph.squeeze(consume x0, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
-    }
-    
-    borrowing func transpose(_ dim0: Int, _ dim1: Int) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        
-        let y = graph.transposeTensor(consume x, dimension: dim0, withDimension: dim1, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }

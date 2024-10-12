@@ -7,6 +7,7 @@
 
 import MetalPerformanceShadersGraph
 
+@available(iOS 14.0, *)
 extension MPSGraphTensorData: Tensorable {
     
     consuming func toTensor() -> Tensor {
