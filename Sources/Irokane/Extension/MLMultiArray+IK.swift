@@ -35,6 +35,41 @@ extension MLMultiArray {
         
         return MPSGraphTensorData(consume buf, shape: self.shape, dataType: dtype)
     }
+    
+    func toFloat32s() throws(Errors) -> [Float32] {
+        if self.dataType != .float32 { throw .msg("\(self.dataType)") }
+        
+        let cnt = self.count
+        let dst = [Float32](unsafeUninitializedCapacity: cnt) { buf, cnt in
+            cnt = self.withUnsafeBufferPointer(ofType: Float32.self) { ptr in
+                guard let src = ptr.baseAddress,
+                      let dst = buf.baseAddress
+                else { return 0 }
+                dst.initialize(from: src, count: ptr.count)
+                return ptr.count
+            }
+        }
+        guard dst.count == cnt else { throw .msg("copy failed") }
+        return dst
+    }
+    
+    @available(iOS 16.0, *)
+    func toFloat16s() throws(Errors) -> [Float16] {
+        if self.dataType != .float16 { throw .msg("\(self.dataType)") }
+        
+        let cnt = self.count
+        let dst = [Float16](unsafeUninitializedCapacity: cnt) { buf, cnt in
+            cnt = self.withUnsafeBufferPointer(ofType: Float16.self) { ptr in
+                guard let src = ptr.baseAddress,
+                      let dst = buf.baseAddress
+                else { return 0 }
+                dst.initialize(from: src, count: ptr.count)
+                return ptr.count
+            }
+        }
+        guard dst.count == cnt else { throw .msg("copy failed") }
+        return dst
+    }
 }
 
 // MARK: - Private
