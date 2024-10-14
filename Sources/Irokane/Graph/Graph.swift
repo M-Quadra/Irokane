@@ -79,6 +79,13 @@ public extension Graph.Tensor {
 @available(iOS 15.4, *)
 public extension Graph.Tensor {
     
+    borrowing func squeeze(_ dim: Int) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        
+        let y = graph.squeeze(consume x, axis: dim, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
+    
     borrowing func unsqueeze(_ dim: Int) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         

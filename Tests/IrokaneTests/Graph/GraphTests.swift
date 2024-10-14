@@ -434,4 +434,24 @@ struct GraphTests {
         let arr = try zData.toFloat16s()
         #expect(arr == [19, 22, 43, 50])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("squeeze(a)")
+    func squeeze() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([2, 1, 3, 1])
+        
+        let y = x.squeeze(1)
+
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [2, 3, 1])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 1, 2, 3, 4, 5])
+    }
 }
