@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MetalPerformanceShadersGraph
 
 @available(iOS 16.0, *)
 public func cumsum(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
@@ -100,4 +101,20 @@ public func matmul(_ lhs: borrowing Graph.Tensor, _ rhs: borrowing Graph.Tensor)
     
     let z = graph.matrixMultiplication(primary: consume x, secondary: consume y, name: nil)
     return Graph.Tensor(graph: lhs.graph, tensor: consume z)
+}
+
+@available(iOS 15.4, *)
+public func randnLike(_ input: borrowing Graph.Tensor) throws(Errors) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    switch x.dataType {
+    case .bFloat16, .float16, .float32: break
+    default: throw .msg("unsupport dtype")
+    }
+    guard let op = MPSGraphRandomOpDescriptor(distribution: .normal, dataType: x.dataType)
+    else { throw .msg("MPSGraphRandomOpDescriptor") }
+    op.samplingMethod = .boxMuller
+    
+    let shape = graph.shapeOf(consume x, name: nil)
+    let y = graph.randomTensor(withShapeTensor: consume shape, descriptor: consume op, name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
 }

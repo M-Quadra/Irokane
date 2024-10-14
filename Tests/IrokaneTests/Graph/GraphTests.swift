@@ -454,4 +454,26 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [0, 1, 2, 3, 4, 5])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("randn_like(x)")
+    func randnLike() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([2, 3])
+            .cast(to: .float32)
+        
+        let y = try Irokane.randnLike(x)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [2, 3])
+        
+        let arr = try yData.toFloat32s()
+        #expect(abs(arr.mean) < 0.1)
+        #expect(abs(arr.std - 1) < 0.26)
+    }
 }
