@@ -59,6 +59,14 @@ public extension Graph.Tensor {
         let y = graph.multiplication(consume x, consume a, name: nil)
         return Graph.Tensor(graph: rhs.graph, tensor: consume y)
     }
+    // x * a
+    static func * (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
+        let graph = lhs.graph.graph, x = lhs.tensor
+        let a = graph.constant(rhs, dataType: x.dataType)
+        
+        let y = graph.multiplication(consume x, consume a, name: nil)
+        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
+    }
     
     // x * y
     static func * (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {

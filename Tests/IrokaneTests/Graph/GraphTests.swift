@@ -476,4 +476,41 @@ struct GraphTests {
         #expect(abs(arr.mean) < 0.1)
         #expect(abs(arr.std - 1) < 0.26)
     }
+    
+    @available(iOS 15.4, *)
+    @Test("a * x")
+    func multiplication0() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        
+        let y = 2 * x
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [6])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 2, 4, 6, 8, 10])
+    }
+    @available(iOS 15.4, *)
+    @Test("x * a")
+    func multiplication1() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        
+        let y = x * 2
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [6])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 2, 4, 6, 8, 10])
+    }
 }
