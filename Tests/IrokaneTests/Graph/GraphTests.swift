@@ -350,7 +350,7 @@ struct GraphTests {
     
     @available(iOS 15.4, *)
     @Test("arange(a)", arguments: 0...9)
-    func arange(len: Int) throws {
+    func arange0(len: Int) throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray([len]).ik.toTensor(at: graph)
         
@@ -365,6 +365,25 @@ struct GraphTests {
         
         let arr = try yData.toInt32s()
         #expect(arr == (0..<len).map { Int32($0) })
+    }
+    @available(iOS 15.4, *)
+    @Test("arange(x.max())")
+    func arange1() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([2, 3])
+        
+        let y = Irokane.arange(x.max())
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [5])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 1, 2, 3, 4])
     }
     
     @available(iOS 15.4, *)
@@ -382,7 +401,7 @@ struct GraphTests {
             targetOperations: nil
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [3])
-
+        
         let arr = try yData.toBools()
         #expect(arr == [true, true, true])
     }
@@ -443,7 +462,7 @@ struct GraphTests {
             .reshape([2, 1, 3, 1])
         
         let y = x.squeeze(1)
-
+        
         guard let yData = graph.graph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],

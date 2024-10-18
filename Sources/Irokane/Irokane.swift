@@ -88,7 +88,6 @@ public func ceil(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
 @available(iOS 15.4, *)
 public func arange(_ end: borrowing Graph.Tensor) -> Graph.Tensor {
     let graph = end.graph.graph, x = end.tensor
-    assert(x.shape?.count == 1)
     
     let y = graph.coordinate(alongAxis: 0, withShapeTensor: x, name: nil)
     return Graph.Tensor(graph: end.graph, tensor: consume y)
