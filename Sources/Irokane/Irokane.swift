@@ -12,7 +12,7 @@ import MetalPerformanceShadersGraph
 public func cumsum(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
     let graph = input.graph.graph, x = input.tensor
     
-    let y = graph.cumulativeSum(consume x, axis: -1, name: nil)
+    let y = graph.cumulativeSum(consume x, axis: dim, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
 

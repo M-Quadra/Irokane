@@ -532,4 +532,23 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [0, 2, 4, 6, 8, 10])
     }
+    
+    @available(iOS 16.0, *)
+    @Test("cumsum(x, a)")
+    func cumsum() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        
+        let y = Irokane.cumsum(x, dim: -1)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [6])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 1, 3, 6, 10, 15])
+    }
 }
