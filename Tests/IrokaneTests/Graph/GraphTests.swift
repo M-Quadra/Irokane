@@ -574,4 +574,24 @@ struct GraphTests {
             0, 1, 2,
         ])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("zeros_like(x)")
+    func zerosLike() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 2, 3])
+        
+        let y = Irokane.zerosLike(x)
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1, 2, 3])
+        
+        let sum = try yData.toInt32s().reduce(0, +)
+        #expect(sum == 0)
+    }
 }

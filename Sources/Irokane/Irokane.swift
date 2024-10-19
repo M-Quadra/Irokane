@@ -126,3 +126,10 @@ public func flip(_ input: borrowing Graph.Tensor, dims: [Int]) -> Graph.Tensor {
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
 
+@available(iOS 14.0, *)
+public func zerosLike(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    
+    let y = graph.subtraction(x, x, name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
+}
