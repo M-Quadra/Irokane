@@ -117,3 +117,12 @@ public func randnLike(_ input: borrowing Graph.Tensor) throws(Errors) -> Graph.T
     let y = graph.randomTensor(withShapeTensor: consume shape, descriptor: consume op, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
+
+@available(iOS 15.0, *)
+public func flip(_ input: borrowing Graph.Tensor, dims: [Int]) -> Graph.Tensor {
+    let graph = input.graph.graph, x = input.tensor
+    
+    let y = graph.reverse(consume x, axes: dims as [NSNumber], name: nil)
+    return Graph.Tensor(graph: input.graph, tensor: consume y)
+}
+

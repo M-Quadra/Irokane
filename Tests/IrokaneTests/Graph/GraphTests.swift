@@ -551,4 +551,27 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [0, 1, 3, 6, 10, 15])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("flip(x, [a])")
+    func flip() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 2, 3])
+        
+        let y = Irokane.flip(x, dims: [1])
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1, 2, 3])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [
+            3, 4, 5,
+            0, 1, 2,
+        ])
+    }
 }
