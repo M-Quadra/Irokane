@@ -101,7 +101,8 @@ public extension Graph.Tensor {
     static func - (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
         let graph = lhs.graph.graph, x = lhs.tensor
         assert(graph == rhs.graph.graph)
-
+        assert(x.dataType == rhs.tensor.dataType)
+        
         let y = graph.subtraction(consume x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
@@ -121,10 +122,16 @@ public extension Graph.Tensor {
     }
     
     static func < (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
+#if DEBUG
+        let name: String = "\(#fileID):\(#line)"
+#else
+        let name: String? = nil
+#endif
         let graph = lhs.graph.graph, x = lhs.tensor
         assert(graph == rhs.graph.graph)
-
-        let y = graph.lessThan(x, rhs.tensor, name: nil)
+        assert(x.dataType == rhs.tensor.dataType)
+        
+        let y = graph.lessThan(consume x, rhs.tensor, name: consume name)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
 }
