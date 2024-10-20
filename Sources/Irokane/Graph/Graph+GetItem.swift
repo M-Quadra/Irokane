@@ -7,7 +7,9 @@
 
 import Foundation
 
-public enum Mark {}
+public enum Mark {
+    case all
+}
 
 @available(iOS 14.0, *)
 public extension Graph.Tensor {
@@ -79,12 +81,28 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    /// x[..., nil]
+    // x[..., nil]
     @available(iOS 15.4, *)
     subscript(_: (UnboundedRange_) -> (), mark: Mark?) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
         let y = graph.expandDims(x, axis: -1, name: nil)
+        return Graph.Tensor(graph: self.graph, tensor: consume y)
+    }
+    
+    // x[:, :-1] -> x[.all, ..<(-1)]
+    subscript(_ mark: Mark, range: PartialRangeUpTo<Int>) -> Graph.Tensor {
+        let graph = self.graph.graph, x = self.tensor
+        var len = range.upperBound
+        if len < 0 {
+            if let shape = x.shape, shape.count > 1 {
+                len += shape[1].intValue
+            } else {
+                assertionFailure("Invalid shape")
+            }
+        }
+        
+        let y = graph.sliceTensor(x, dimension: 1, start: 0, length: len, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
 }

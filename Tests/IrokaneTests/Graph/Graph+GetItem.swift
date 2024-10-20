@@ -134,4 +134,24 @@ struct GraphGetItem {
         let arr = try yData.toInt32s()
         #expect(arr == [0, 2, 4])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("x[:, :-1]")
+    func getItemSlice() async throws {
+        let graph = Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 3, 2])
+        
+        let y = x[.all, ..<(-1)]
+        
+        guard let yData = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y.tensor],
+            targetOperations: nil
+        )[y.tensor] else { throw Errors.msg("empty result") }
+        #expect(yData.shape == [1, 2, 2])
+        
+        let arr = try yData.toInt32s()
+        #expect(arr == [0, 1, 2, 3])
+    }
 }
