@@ -133,3 +133,11 @@ public func zerosLike(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
     let y = graph.subtraction(x, x, name: nil)
     return Graph.Tensor(graph: input.graph, tensor: consume y)
 }
+
+@available(iOS 15.4, *)
+public func split(_ input: borrowing Graph.Tensor, splits: consuming [Int], dim: Int) -> [Graph.Tensor] {
+    let graph = input.graph.graph, x = input.tensor
+    
+    let arr = graph.split(consume x, splitSizes: splits as [NSNumber], axis: dim, name: nil)
+    return arr.map { Graph.Tensor(graph: input.graph, tensor: $0) }
+}

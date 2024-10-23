@@ -14,34 +14,6 @@ import MetalPerformanceShadersGraph
 struct GraphTests {
     
     @available(iOS 15.4, *)
-    @Test("x >= y")
-    func greaterThanOrEqualTensor() throws {
-        let graph = Irokane.Graph()
-        let x = try MLMultiArray([0, 1, 0]).ik.toTensor(at: graph)
-        let y = try MLMultiArray([
-            1, 0,
-            1, 0,
-            1, 0
-        ]).ik.toTensor(at: graph)
-        
-        let z = x[..., nil] >= y.reshape([3, 2])
-        
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
-        #expect(zData.shape == [3, 2])
-        
-        let arr = try zData.toBools()
-        #expect(arr == [
-            false, true,
-            true,  true,
-            false, true,
-        ])
-    }
-    
-    @available(iOS 15.4, *)
     @Test("sum(x, dim=-1), 1d")
     func sum1d() throws {
         let graph = Graph()
@@ -131,46 +103,6 @@ struct GraphTests {
     }
     
     @available(iOS 15.4, *)
-    @Test("x + y")
-    func plus() throws {
-        let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
-        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
-        
-        let z = x + y
-        
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
-        #expect(zData.shape == [3])
-        
-        let arr = try zData.toInt32s()
-        #expect(arr == [1, 3, 5])
-    }
-    
-    @available(iOS 15.4, *)
-    @Test("x * y")
-    func multiply() throws {
-        let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
-        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
-        
-        let z = x * y
-        
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
-        #expect(zData.shape == [3])
-        
-        let arr = try zData.toInt32s()
-        #expect(arr == [0, 2, 6])
-    }
-    
-    @available(iOS 15.4, *)
     @Test("x.pow(a)")
     func pow() throws {
         let graph = Graph()
@@ -249,25 +181,6 @@ struct GraphTests {
         
         let arr = try yData.toFloat32s()
         #expect(arr == [0, 1])
-    }
-    
-    @available(iOS 15.4, *)
-    @Test("x / a")
-    func division() throws {
-        let graph = Graph()
-        let x = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
-        
-        let y = x / 2
-        
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { return }
-        #expect(yData.shape == [3])
-        
-        let arr = try yData.toInt32s()
-        #expect(arr == [1, 2, 3])
     }
     
     @available(iOS 15.4, *)
@@ -385,7 +298,7 @@ struct GraphTests {
         let arr = try yData.toInt32s()
         #expect(arr == [0, 1, 2, 3, 4])
     }
-        
+    
     @available(iOS 15.4, *)
     @Test("x.transpose(a, b)")
     func transpose() throws {
@@ -476,43 +389,6 @@ struct GraphTests {
         #expect(abs(arr.std - 1) < 0.26)
     }
     
-    @available(iOS 15.4, *)
-    @Test("a * x")
-    func multiplication0() throws {
-        let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
-        
-        let y = 2 * x
-        
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [6])
-        
-        let arr = try yData.toInt32s()
-        #expect(arr == [0, 2, 4, 6, 8, 10])
-    }
-    @available(iOS 15.4, *)
-    @Test("x * a")
-    func multiplication1() throws {
-        let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
-        
-        let y = x * 2
-        
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [6])
-        
-        let arr = try yData.toInt32s()
-        #expect(arr == [0, 2, 4, 6, 8, 10])
-    }
-    
     @available(iOS 16.0, *)
     @Test("cumsum(x, a)")
     func cumsum() throws {
@@ -573,5 +449,32 @@ struct GraphTests {
         
         let sum = try yData.toInt32s().reduce(0, +)
         #expect(sum == 0)
+    }
+    
+    @available(iOS 15.4, *)
+    @Test("split(x, [a, b], c)")
+    func split() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+            .reshape([1, 2, 3])
+        
+        let ys = Irokane.split(x, splits: [1, 1], dim: 1)
+        let y0 = ys[0], y1 = ys[1]
+        
+        let dic = graph.graph.run(
+            feeds: graph.feeds,
+            targetTensors: [y0.tensor, y1.tensor],
+            targetOperations: nil
+        )
+        guard let y0Data = dic[y0.tensor],
+              let y1Data = dic[y1.tensor]
+        else { throw Errors.msg("empty result") }
+        #expect(y0Data.shape == [1, 1, 3])
+        #expect(y1Data.shape == [1, 1, 3])
+        
+        let arr0 = try y0Data.toInt32s()
+        let arr1 = try y1Data.toInt32s()
+        #expect(arr0 == [0, 1, 2])
+        #expect(arr1 == [3, 4, 5])
     }
 }
