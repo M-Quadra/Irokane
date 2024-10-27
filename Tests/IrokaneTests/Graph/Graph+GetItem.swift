@@ -17,11 +17,11 @@ struct GraphGetItem {
     @Test("x[mask]")
     func getByMask() async throws {
         let graph = Graph()
-        let x = try MLMultiArray((0..<6)).ik.toTensor(at: graph)
+        let x = try MLMultiArray((0..<6)).ik.to(graph: graph)
         let m = try MLMultiArray([
             0, 1, 0,
             1, 0, 1
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
         let x0 = x.reshape([2, 3])
         let m0 = m.reshape([2, 3])
         
@@ -42,8 +42,8 @@ struct GraphGetItem {
     @Test("x[mask, :]")
     func getByMaskSlice() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
-        let m = try MLMultiArray([0, 2]).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
+        let m = try MLMultiArray([0, 2]).ik.to(graph: graph)
         let x0 = x.reshape([2, 3])
         
         let y = x0[m, ...]
@@ -63,7 +63,7 @@ struct GraphGetItem {
     @Test("x[..., i:]")
     func getItemFrom() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = x[..., 1...]
         
@@ -82,7 +82,7 @@ struct GraphGetItem {
     @Test("x[..., :i]")
     func getItemTo() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = x[..., ..<(-1)]
         
@@ -101,7 +101,7 @@ struct GraphGetItem {
     @Test("x[..., None]")
     func getItemNone() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = x[..., .none]
         
@@ -120,7 +120,7 @@ struct GraphGetItem {
     @Test("x[..., i]")
     func getItemAt() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y: Graph.Tensor = x.reshape([3, 2])[..., 0]
 
@@ -139,7 +139,7 @@ struct GraphGetItem {
     @Test("x[:, :-1]")
     func getItemSlice() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 3, 2])
         
         let y = x[.all, ..<(-1)]

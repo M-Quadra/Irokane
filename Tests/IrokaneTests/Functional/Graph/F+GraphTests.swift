@@ -18,7 +18,7 @@ struct FunctionalGraphTests {
     @available(iOS 16.0, *)
     @Test func pad0() async throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.toTensor(at: graph)
+        let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.to(graph: graph)
         
         let y = F.pad(x, pad: (3, 4))
         
@@ -32,7 +32,7 @@ struct FunctionalGraphTests {
     @available(iOS 15.4, *)
     @Test func pad1() async throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(1...6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(1...6).ik.to(graph: graph)
             .reshape([1, 3, 2])
         
         let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
@@ -56,7 +56,7 @@ struct FunctionalGraphTests {
     @available(iOS 15.4, *)
     @Test func softmax() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .cast(to: .float16)
             .reshape([2, 3])
         
@@ -79,7 +79,7 @@ struct FunctionalGraphTests {
     @available(iOS 15.4, *)
     @Test func softplus() async throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
             .cast(to: .float16) + 0.5
         
         let y = F.softplus(x, beta: 2, threshold: 2)

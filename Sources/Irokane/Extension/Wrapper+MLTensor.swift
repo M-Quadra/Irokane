@@ -24,7 +24,7 @@ public extension Wrapper<MLTensor> {
         return Tensor(base: self.base)
     }
     
-    consuming func toTensor(at graph: Graph) async throws(Errors) -> Graph.Tensor {
+    consuming func to(graph: Graph) async throws(Errors) -> Graph.Tensor {
         let data = try await self.base.toTensorData()
         let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
         

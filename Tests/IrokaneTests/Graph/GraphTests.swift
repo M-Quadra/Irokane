@@ -17,7 +17,7 @@ struct GraphTests {
     @Test("sum(x, dim=-1), 1d")
     func sum1d() throws {
         let graph = Graph()
-        let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([0, 1, 2]).ik.to(graph: graph)
         
         let y = Irokane.sum(x, dim: -1)
         
@@ -36,7 +36,7 @@ struct GraphTests {
     @Test("sum(x, dim=-1), 2d")
     func sum2d() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         let x0 = x.reshape([2, 3])
         
         let y = Irokane.sum(x0, dim: -1)
@@ -56,7 +56,7 @@ struct GraphTests {
     @Test("sum(x, dims=[a, b])")
     func sumDims() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 2, 3])
         
         let y = Irokane.sum(x, dims: [1, 2])
@@ -80,12 +80,12 @@ struct GraphTests {
             0, 1,
             2, 3,
             4, 5,
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
         let i = try MLMultiArray([
             0,
             1,
             0,
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
         let x0 = x.reshape([3, 2])
         let i0 = i[..., .none]
         
@@ -106,7 +106,7 @@ struct GraphTests {
     @Test("x.pow(a)")
     func pow() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = x.pow(2)
         
@@ -124,7 +124,7 @@ struct GraphTests {
     @available(iOS 15.4, *)
     @Test func sqrt() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = Irokane.sqrt(x*x)
         
@@ -143,8 +143,8 @@ struct GraphTests {
     @Test("cat([x, y], 1)")
     func cat() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
-        let y = try MLMultiArray(3..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
+        let y = try MLMultiArray(3..<6).ik.to(graph: graph)
         let x0 = x.reshape([1, 1, 3])
         let y0 = y.reshape([1, 1, 3])
         
@@ -168,7 +168,7 @@ struct GraphTests {
     @Test("maximum(x, a)")
     func maximum() throws {
         let graph = Graph()
-        let x = try MLMultiArray([Float.nan, 1]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([Float.nan, 1]).ik.to(graph: graph)
         
         let y = Irokane.maximum(x, 0)
         
@@ -187,7 +187,7 @@ struct GraphTests {
     @Test("exp(x)")
     func exp() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray([0, 1, 2]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([0, 1, 2]).ik.to(graph: graph)
             .cast(to: .float32)
         
         let y = Irokane.exp(x)
@@ -207,7 +207,7 @@ struct GraphTests {
     @Test("ceil(x)")
     func ceil() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray([0.1, 1.5, 2.9]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([0.1, 1.5, 2.9]).ik.to(graph: graph)
         
         let y = Irokane.ceil(x)
         
@@ -226,7 +226,7 @@ struct GraphTests {
     @Test("x.max(), 1d")
     func max1d() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         let y = x.max()
         
@@ -245,7 +245,7 @@ struct GraphTests {
     @Test("x.max(), 2d")
     func max2d() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
         
         let y = x.max()
@@ -265,7 +265,7 @@ struct GraphTests {
     @Test("arange(a)", arguments: 0...9)
     func arange0(len: Int) throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray([len]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([len]).ik.to(graph: graph)
         
         let y = Irokane.arange(x)
         
@@ -283,7 +283,7 @@ struct GraphTests {
     @Test("arange(x.max())")
     func arange1() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
         
         let y = Irokane.arange(x.max())
@@ -303,7 +303,7 @@ struct GraphTests {
     @Test("x.transpose(a, b)")
     func transpose() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 2, 3])
         
         let y = x.transpose(0, 2)
@@ -327,10 +327,10 @@ struct GraphTests {
     @Test("matmul(x, y)")
     func matmul() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(1...4).ik.toTensor(at: graph)
+        let x = try MLMultiArray(1...4).ik.to(graph: graph)
             .cast(to: .float16)
             .reshape([2, 2])
-        let y = try MLMultiArray(5...8).ik.toTensor(at: graph)
+        let y = try MLMultiArray(5...8).ik.to(graph: graph)
             .cast(to: .float16)
             .reshape([2, 2])
         
@@ -351,7 +351,7 @@ struct GraphTests {
     @Test("squeeze(a)")
     func squeeze() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 1, 3, 1])
         
         let y = x.squeeze(1)
@@ -371,7 +371,7 @@ struct GraphTests {
     @Test("randn_like(x)")
     func randnLike() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
             .cast(to: .float32)
         
@@ -393,7 +393,7 @@ struct GraphTests {
     @Test("cumsum(x, a)")
     func cumsum() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y = Irokane.cumsum(x, dim: -1)
         
@@ -412,7 +412,7 @@ struct GraphTests {
     @Test("flip(x, [a])")
     func flip() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 2, 3])
         
         let y = Irokane.flip(x, dims: [1])
@@ -435,7 +435,7 @@ struct GraphTests {
     @Test("zeros_like(x)")
     func zerosLike() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 2, 3])
         
         let y = Irokane.zerosLike(x)
@@ -455,7 +455,7 @@ struct GraphTests {
     @Test("split(x, [a, b], c)")
     func split() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([1, 2, 3])
         
         let ys = Irokane.split(x, splits: [1, 1], dim: 1)

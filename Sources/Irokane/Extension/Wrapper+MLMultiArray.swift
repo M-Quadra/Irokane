@@ -19,7 +19,7 @@ public extension Wrapper<MLMultiArray> {
         return Tensor(base: self.base)
     }
     
-    consuming func toTensor(at graph: Graph) throws(Errors) -> Graph.Tensor {
+    consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
         let data = try self.base.toTensorData()
         let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
         

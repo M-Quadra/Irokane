@@ -17,12 +17,12 @@ struct GraphSetItem {
     @Test("x[mask] = a")
     func byMaskConstant() async throws {
         let graph = Irokane.Graph()
-        var x = try MLMultiArray((0..<6)).ik.toTensor(at: graph)
+        var x = try MLMultiArray((0..<6)).ik.to(graph: graph)
             .reshape([2, 3])
         let mask = try MLMultiArray([
             0, 1, 0,
             1, 0, 1
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
             .reshape([2, 3])
         
         x[mask] .= 6
@@ -46,14 +46,14 @@ struct GraphSetItem {
     func byMaskTensor() async throws {
         let graph = Irokane.Graph()
         
-        var x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        var x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
         let mask = try MLMultiArray([
             0, 1, 0,
             1, 0, 1,
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
             .reshape([2, 3])
-        let y = try MLMultiArray([7, 8, 9]).ik.toTensor(at: graph)
+        let y = try MLMultiArray([7, 8, 9]).ik.to(graph: graph)
         
         x[mask] .= y
         
@@ -75,7 +75,7 @@ struct GraphSetItem {
     @Test("x[..., i] = a")
     func setLast0() async throws {
         let graph = Graph()
-        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
+        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.to(graph: graph)
         
         x[..., 1] .= 2
         
@@ -94,7 +94,7 @@ struct GraphSetItem {
     @Test("x[..., -i] = a")
     func setLast1() async throws {
         let graph = Graph()
-        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.toTensor(at: graph)
+        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.to(graph: graph)
         
         x[..., -1] .= 2
         
@@ -113,7 +113,7 @@ struct GraphSetItem {
     @Test("x[..., -1] += a")
     func addLast() async throws {
         let graph = Graph()
-        var x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
+        var x = try MLMultiArray(0..<3).ik.to(graph: graph)
         
         x[..., -1] += 1
         

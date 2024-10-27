@@ -16,8 +16,8 @@ struct GraphOperator {
     @Test("x + y")
     func plus() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
-        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
+        let y = try MLMultiArray(1..<4).ik.to(graph: graph)
         
         let z = x + y
         
@@ -36,7 +36,7 @@ struct GraphOperator {
     @Test("a * x")
     func multiplication0() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y = 2 * x
         
@@ -54,7 +54,7 @@ struct GraphOperator {
     @Test("x * a")
     func multiplication1() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray(0..<6).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y = x * 2
         
@@ -73,8 +73,8 @@ struct GraphOperator {
     @Test("x * y")
     func multiply() throws {
         let graph = Graph()
-        let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
-        let y = try MLMultiArray(1..<4).ik.toTensor(at: graph)
+        let x = try MLMultiArray(0..<3).ik.to(graph: graph)
+        let y = try MLMultiArray(1..<4).ik.to(graph: graph)
         
         let z = x * y
         
@@ -93,7 +93,7 @@ struct GraphOperator {
     @Test("x / a")
     func division() throws {
         let graph = Graph()
-        let x = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([2, 4, 6]).ik.to(graph: graph)
         
         let y = x / 2
         
@@ -112,8 +112,8 @@ struct GraphOperator {
     @Test("x < y")
     func lessThan() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray([1, 3, 5]).ik.toTensor(at: graph)
-        let y = try MLMultiArray([2, 4, 6]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([1, 3, 5]).ik.to(graph: graph)
+        let y = try MLMultiArray([2, 4, 6]).ik.to(graph: graph)
         
         let z = x < y
         
@@ -132,12 +132,12 @@ struct GraphOperator {
     @Test("x >= y")
     func greaterThanOrEqualTensor() throws {
         let graph = Irokane.Graph()
-        let x = try MLMultiArray([0, 1, 0]).ik.toTensor(at: graph)
+        let x = try MLMultiArray([0, 1, 0]).ik.to(graph: graph)
         let y = try MLMultiArray([
             1, 0,
             1, 0,
             1, 0
-        ]).ik.toTensor(at: graph)
+        ]).ik.to(graph: graph)
         
         let z = x[..., .none] >= y.reshape([3, 2])
         
