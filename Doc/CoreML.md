@@ -26,39 +26,38 @@ Neural Engine，本文称NPU，下同。
 
 
 
-- `cumsum`
+### cumsum
 
-  无论是否 fixed shape 均会触发降级CPU。
+无论是否 fixed shape 均会触发降级CPU。
 
-  ```python
-  class Model(nn.Module):
-      def forward(self, x):
-          x0 = torch.cumsum(x, dim=-1)
-          return x0 + 1
-	```
+```python
+class Model(nn.Module):
+    def forward(self, x):
+        x0 = torch.cumsum(x, dim=-1)
+        return x0 + 1
+```
 
-  不管后续一个一个一个 op 如何简单均会被塞回 CPU（悲
+不管后续一个一个一个 op 如何简单均会被塞回 CPU（悲
 
-  理论上现有推理优化工作不少针对固定shape，因此 CoreML 有种十分浓烈的管生不管养味。
-  
-  
+理论上现有推理优化工作不少针对固定shape，因此 CoreML 有种十分浓烈的管生不管养味。
 
 
-- `fill_like`
 
-  Performance 报告显示有可能上GPU，但我个人没尝试出来。不论 shape 是否固定均为 CPU-only。
-  
-  
-  
-- `fill`
+### fill_like
 
-  CPU-only，且看起来运行时没有任何优化。
-  
-  
-  
-- `range_1d`
+Performance 显示可上 GPU，但没尝试出来。不论 shape 是否固定均 CPU-only。
 
-  对应`torch.arange`，CPU-only op。
+
+
+### fill
+
+CPU-only，且看起来运行时没有任何优化。
+
+
+
+### range_1d
+
+对应`torch.arange`，CPU-only op。
 
 
 

@@ -87,7 +87,7 @@ struct GraphTests {
             0,
         ]).ik.toTensor(at: graph)
         let x0 = x.reshape([3, 2])
-        let i0 = i[..., nil]
+        let i0 = i[..., .none]
         
         let y = x0.gather(dim: -1, index: i0)
         

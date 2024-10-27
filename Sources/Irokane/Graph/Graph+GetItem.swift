@@ -7,8 +7,16 @@
 
 import Foundation
 
-public enum Mark {
-    case all
+// x[a, None] -> x[a, .none]
+public struct MarkNone {
+    fileprivate init() {}
+    public static var none: MarkNone { MarkNone() }
+}
+
+// x[:, a] -> x[.all, a]
+public struct MarkAll {
+    fileprivate init() {}
+    public static var all: MarkAll { MarkAll() }
 }
 
 @available(iOS 14.0, *)
@@ -81,9 +89,9 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    // x[..., nil]
+    // x[..., None] -> x[..., .none]
     @available(iOS 15.4, *)
-    subscript(_: (UnboundedRange_) -> (), mark: Mark?) -> Graph.Tensor {
+    subscript(_: (UnboundedRange_) -> (), mark: MarkNone) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         
         let y = graph.expandDims(x, axis: -1, name: nil)
@@ -91,7 +99,7 @@ public extension Graph.Tensor {
     }
     
     // x[:, :-1] -> x[.all, ..<(-1)]
-    subscript(_ mark: Mark, range: PartialRangeUpTo<Int>) -> Graph.Tensor {
+    subscript(_ mark: MarkAll, range: PartialRangeUpTo<Int>) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor
         var len = range.upperBound
         if len < 0 {

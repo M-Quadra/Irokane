@@ -139,7 +139,7 @@ struct GraphOperator {
             1, 0
         ]).ik.toTensor(at: graph)
         
-        let z = x[..., nil] >= y.reshape([3, 2])
+        let z = x[..., .none] >= y.reshape([3, 2])
         
         guard let zData = graph.graph.run(
             feeds: graph.feeds,

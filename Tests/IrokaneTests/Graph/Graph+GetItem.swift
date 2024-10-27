@@ -103,7 +103,7 @@ struct GraphGetItem {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.toTensor(at: graph)
         
-        let y = x[..., nil]
+        let y = x[..., .none]
         
         guard let yData = graph.graph.run(
             feeds: graph.feeds,
