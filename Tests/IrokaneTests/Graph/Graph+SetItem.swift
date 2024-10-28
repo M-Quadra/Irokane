@@ -75,7 +75,8 @@ struct GraphSetItem {
     @Test("x[..., i] = a")
     func setLast0() async throws {
         let graph = Graph()
-        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.to(graph: graph)
+        var x = try MLMultiArray([0.5, 0.5]).ik.to(graph: graph)
+            .reshape([1, 2])
         
         x[..., 1] .= 2
         
@@ -94,7 +95,8 @@ struct GraphSetItem {
     @Test("x[..., -i] = a")
     func setLast1() async throws {
         let graph = Graph()
-        var x = try await MLTensor(repeating: 0.5, shape: [1, 2]).ik.to(graph: graph)
+        var x = try MLMultiArray([0.5, 0.5]).ik.to(graph: graph)
+            .reshape([1, 2])
         
         x[..., -1] .= 2
         

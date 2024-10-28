@@ -15,10 +15,6 @@ public extension MLMultiArray {
 @available(iOS 15.4, *)
 public extension Wrapper<MLMultiArray> {
     
-    consuming func toTensor() -> Tensor {
-        return Tensor(base: self.base)
-    }
-    
     consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
         let data = try self.base.toTensorData()
         let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
