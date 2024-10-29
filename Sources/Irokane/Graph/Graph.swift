@@ -19,6 +19,18 @@ public class Graph {
         return Graph.Tensor(graph: self, tensor: tensor)
     }
 }
+@available(iOS 14.0, *)
+public extension Graph {
+    
+    func run(target: borrowing Graph.Tensor) throws -> MPSGraphTensorData {
+        guard let tData = self.graph.run(
+            feeds: self.feeds,
+            targetTensors: [target.tensor],
+            targetOperations: nil
+        )[target.tensor] else { throw Errors.msg("empty result") }
+        return tData
+    }
+}
 
 @available(iOS 14.0, *)
 public extension Graph { struct Tensor {

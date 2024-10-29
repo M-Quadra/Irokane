@@ -97,11 +97,7 @@ struct GraphOperator {
         
         let y = x / 2
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { return }
+        let yData = try graph.run(target: y)
         #expect(yData.shape == [3])
         
         let arr = try yData.toInt32s()

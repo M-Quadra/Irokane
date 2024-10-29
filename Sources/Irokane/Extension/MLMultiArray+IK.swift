@@ -9,6 +9,22 @@ import CoreML
 import MetalPerformanceShadersGraph
 import Accelerate
 
+public extension MLMultiArray {
+    var ik: Wrapper<MLMultiArray> { Wrapper(base: self) }
+}
+
+@available(iOS 15.4, *)
+public extension Wrapper<MLMultiArray> {
+    
+    consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
+        let data = try self.base.toTensorData()
+        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        
+        graph.feeds[x] = consume data
+        return Graph.Tensor(graph: graph, tensor: consume x)
+    }
+}
+
 @available(iOS 15.4, *)
 extension MLMultiArray {
     
