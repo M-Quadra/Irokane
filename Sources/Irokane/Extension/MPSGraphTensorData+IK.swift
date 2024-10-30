@@ -9,6 +9,54 @@ import CoreML
 import MetalPerformanceShadersGraph
 
 @available(iOS 14.0, *)
+public extension Wrapper<MPSGraphTensorData> {
+    
+    consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
+        let data = self.base
+        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        
+        graph.feeds[x] = consume data
+        return Graph.Tensor(graph: graph, tensor: consume x)
+    }
+    
+    consuming func toInt32s() throws -> [Int32] {
+        let tData = self.base
+        if tData.dataType != .int32 { throw Errors.msg("\(tData.dataType)") }
+        let cnt = tData.shape.map { $0.intValue }.reduce(1, *)
+        
+        return try [Int32](unsafeUninitializedCapacity: cnt) { buffer, initializedCount in
+            guard let dst = buffer.baseAddress else { throw Errors.msg("buffer.baseAddress") }
+            tData.mpsndarray().readBytes(dst, strideBytes: nil)
+            initializedCount = cnt
+        }
+    }
+
+    consuming func toFloat16s() throws -> [Float16] {
+        let tData = self.base
+        if tData.dataType != .float16 { throw Errors.msg("\(tData.dataType)") }
+        let cnt = tData.shape.map { $0.intValue }.reduce(1, *)
+        
+        return try [Float16](unsafeUninitializedCapacity: cnt) { buffer, initializedCount in
+            guard let dst = buffer.baseAddress else { throw Errors.msg("buffer.baseAddress") }
+            tData.mpsndarray().readBytes(dst, strideBytes: nil)
+            initializedCount = cnt
+        }
+    }
+
+    consuming func toFloat32s() throws -> [Float32] {
+        let tData = self.base
+        if tData.dataType != .float32 { throw Errors.msg("\(tData.dataType)") }
+        let cnt = tData.shape.map { $0.intValue }.reduce(1, *)
+        
+        return try [Float32](unsafeUninitializedCapacity: cnt) { buffer, initializedCount in
+            guard let dst = buffer.baseAddress else { throw Errors.msg("buffer.baseAddress") }
+            tData.mpsndarray().readBytes(dst, strideBytes: nil)
+            initializedCount = cnt
+        }
+    }
+}
+
+@available(iOS 14.0, *)
 extension MPSGraphTensorData {
     
     @available(iOS 18.0, *)
@@ -30,14 +78,6 @@ extension MPSGraphTensorData {
             return MLTensor(shape: consume shape, scalars: consume arr)
         default: throw .todo("\(self.dataType)")
         }
-    }
-        
-    func toInt32s() throws(Errors) -> [Int32] {
-        if self.dataType != .int32 { throw .msg("\(self.dataType)") }
-        let cnt = self.shape.map { $0.intValue }.reduce(1, *)
-        var arr = [Int32](repeating: Int32.min, count: cnt)
-        self.mpsndarray().readBytes(&arr, strideBytes: nil)
-        return arr
     }
     
     func toFloat16s() throws(Errors) -> [Float16] {

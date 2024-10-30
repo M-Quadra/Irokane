@@ -21,14 +21,10 @@ struct GraphOperator {
         
         let z = x + y
         
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
+        let zData = try z.tensorData
         #expect(zData.shape == [3])
         
-        let arr = try zData.toInt32s()
+        let arr = try zData.ik.toInt32s()
         #expect(arr == [1, 3, 5])
     }
     
@@ -40,14 +36,10 @@ struct GraphOperator {
         
         let y = 2 * x
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [6])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 2, 4, 6, 8, 10])
     }
     @available(iOS 15.4, *)
@@ -58,14 +50,10 @@ struct GraphOperator {
         
         let y = x * 2
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [6])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 2, 4, 6, 8, 10])
     }
     
@@ -78,14 +66,10 @@ struct GraphOperator {
         
         let z = x * y
         
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
+        let zData = try z.tensorData
         #expect(zData.shape == [3])
         
-        let arr = try zData.toInt32s()
+        let arr = try zData.ik.toInt32s()
         #expect(arr == [0, 2, 6])
     }
     
@@ -97,10 +81,10 @@ struct GraphOperator {
         
         let y = x / 2
         
-        let yData = try graph.run(target: y)
+        let yData = try y.tensorData
         #expect(yData.shape == [3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [1, 2, 3])
     }
     

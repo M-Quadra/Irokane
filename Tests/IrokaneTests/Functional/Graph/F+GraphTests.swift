@@ -37,14 +37,10 @@ struct FunctionalGraphTests {
         
         let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1, 4, 2])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [
             0, 0,
             1, 2,

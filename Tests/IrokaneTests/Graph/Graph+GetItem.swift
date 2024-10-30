@@ -27,14 +27,10 @@ struct GraphGetItem {
         
         let y: Graph.Tensor = x0[m0]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [1, 3, 5])
     }
     
@@ -48,14 +44,10 @@ struct GraphGetItem {
         
         let y = x0[m, ...]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1, 3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [3, 4, 5])
     }
     
@@ -67,14 +59,10 @@ struct GraphGetItem {
         
         let y = x[..., 1...]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [2])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [1, 2])
     }
     
@@ -86,14 +74,10 @@ struct GraphGetItem {
         
         let y = x[..., ..<(-1)]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [2])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1])
     }
     
@@ -105,14 +89,10 @@ struct GraphGetItem {
         
         let y = x[..., .none]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3, 1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 2])
     }
     
@@ -124,14 +104,10 @@ struct GraphGetItem {
         
         let y: Graph.Tensor = x.reshape([3, 2])[..., 0]
 
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3])
 
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 2, 4])
     }
     
@@ -144,14 +120,10 @@ struct GraphGetItem {
         
         let y = x[.all, ..<(-1)]
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1, 2, 2])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 2, 3])
     }
 }

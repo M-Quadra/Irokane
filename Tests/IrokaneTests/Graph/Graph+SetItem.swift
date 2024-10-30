@@ -34,7 +34,7 @@ struct GraphSetItem {
         )[x.tensor] else { throw Errors.msg("empty result") }
         #expect(xData.shape == [2, 3])
         
-        let arr = try xData.toInt32s()
+        let arr = try xData.ik.toInt32s()
         #expect(arr == [
             0, 6, 2,
             6, 4, 6
@@ -57,14 +57,10 @@ struct GraphSetItem {
         
         x[mask] .= y
         
-        guard let xData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [x.tensor],
-            targetOperations: nil
-        )[x.tensor] else { throw Errors.msg("empty result") }
+        let xData = try x.tensorData
         #expect(xData.shape == [2, 3])
         
-        let arr = try xData.toInt32s()
+        let arr = try xData.ik.toInt32s()
         #expect(arr == [
             0, 7, 2,
             8, 4, 9
@@ -119,14 +115,10 @@ struct GraphSetItem {
         
         x[..., -1] += 1
         
-        guard let xData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [x.tensor],
-            targetOperations: nil
-        )[x.tensor] else { throw Errors.msg("empty result") }
+        let xData = try x.tensorData
         #expect(xData.shape == [3])
         
-        let arr = try xData.toInt32s()
+        let arr = try xData.ik.toInt32s()
         #expect(arr == [0, 1, 3])
     }
 }

@@ -21,14 +21,10 @@ struct GraphTests {
         
         let y = Irokane.sum(x, dim: -1)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [3])
     }
     
@@ -41,14 +37,10 @@ struct GraphTests {
         
         let y = Irokane.sum(x0, dim: -1)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [2])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [3, 12])
     }
     
@@ -61,14 +53,10 @@ struct GraphTests {
         
         let y = Irokane.sum(x, dims: [1, 2])
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [15])
     }
     
@@ -91,14 +79,10 @@ struct GraphTests {
         
         let y = x0.gather(dim: -1, index: i0)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3, 1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 3, 4])
     }
     
@@ -110,14 +94,10 @@ struct GraphTests {
         
         let y = x.pow(2)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 4])
     }
     
@@ -128,14 +108,10 @@ struct GraphTests {
         
         let y = Irokane.sqrt(x*x)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 2])
     }
     
@@ -150,14 +126,10 @@ struct GraphTests {
         
         let z = Irokane.cat(x0, y0, dim: 1)
         
-        guard let zData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
+        let zData = try z.tensorData
         #expect(zData.shape == [1, 2, 3])
         
-        let arr = try zData.toInt32s()
+        let arr = try zData.ik.toInt32s()
         #expect(arr == [
             0, 1, 2,
             3, 4, 5,
@@ -230,14 +202,10 @@ struct GraphTests {
         
         let y = x.max()
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [2])
     }
     
@@ -250,14 +218,10 @@ struct GraphTests {
         
         let y = x.max()
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [5])
     }
     
@@ -269,14 +233,10 @@ struct GraphTests {
         
         let y = Irokane.arange(x)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [len as NSNumber])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == (0..<len).map { Int32($0) })
     }
     @available(iOS 15.4, *)
@@ -288,14 +248,10 @@ struct GraphTests {
         
         let y = Irokane.arange(x.max())
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [5])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 2, 3, 4])
     }
     
@@ -308,14 +264,10 @@ struct GraphTests {
         
         let y = x.transpose(0, 2)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [3, 2, 1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [
             0, 3,
             1, 4,
@@ -356,14 +308,10 @@ struct GraphTests {
         
         let y = x.squeeze(1)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [2, 3, 1])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 2, 3, 4, 5])
     }
     
@@ -397,14 +345,10 @@ struct GraphTests {
         
         let y = Irokane.cumsum(x, dim: -1)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [6])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [0, 1, 3, 6, 10, 15])
     }
     
@@ -417,14 +361,10 @@ struct GraphTests {
         
         let y = Irokane.flip(x, dims: [1])
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1, 2, 3])
         
-        let arr = try yData.toInt32s()
+        let arr = try yData.ik.toInt32s()
         #expect(arr == [
             3, 4, 5,
             0, 1, 2,
@@ -440,14 +380,10 @@ struct GraphTests {
         
         let y = Irokane.zerosLike(x)
         
-        guard let yData = graph.graph.run(
-            feeds: graph.feeds,
-            targetTensors: [y.tensor],
-            targetOperations: nil
-        )[y.tensor] else { throw Errors.msg("empty result") }
+        let yData = try y.tensorData
         #expect(yData.shape == [1, 2, 3])
         
-        let sum = try yData.toInt32s().reduce(0, +)
+        let sum = try yData.ik.toInt32s().reduce(0, +)
         #expect(sum == 0)
     }
     
@@ -472,8 +408,8 @@ struct GraphTests {
         #expect(y0Data.shape == [1, 1, 3])
         #expect(y1Data.shape == [1, 1, 3])
         
-        let arr0 = try y0Data.toInt32s()
-        let arr1 = try y1Data.toInt32s()
+        let arr0 = try y0Data.ik.toInt32s()
+        let arr1 = try y1Data.ik.toInt32s()
         #expect(arr0 == [0, 1, 2])
         #expect(arr1 == [3, 4, 5])
     }

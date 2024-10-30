@@ -19,18 +19,6 @@ public class Graph {
         return Graph.Tensor(graph: self, tensor: tensor)
     }
 }
-@available(iOS 14.0, *)
-public extension Graph {
-    
-    func run(target: borrowing Graph.Tensor) throws -> MPSGraphTensorData {
-        guard let tData = self.graph.run(
-            feeds: self.feeds,
-            targetTensors: [target.tensor],
-            targetOperations: nil
-        )[target.tensor] else { throw Errors.msg("empty result") }
-        return tData
-    }
-}
 
 @available(iOS 14.0, *)
 public extension Graph { struct Tensor {
@@ -86,6 +74,15 @@ public extension Graph.Tensor {
         let y = graph.transposeTensor(consume x, dimension: dim0, withDimension: dim1, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
+    
+    var tensorData: MPSGraphTensorData { get throws(Errors) {
+        guard let tData = self.graph.graph.run(
+            feeds: self.graph.feeds,
+            targetTensors: [self.tensor],
+            targetOperations: nil
+        )[self.tensor] else { throw Errors.msg("empty result") }
+        return tData
+    }}
 }
 
 @available(iOS 15.4, *)
