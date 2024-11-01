@@ -80,14 +80,14 @@ public extension Graph.Tensor {
     // x[mask, ...]
     @available(iOS 17.0, *)
     subscript(mask: Graph.Tensor, _: (UnboundedRange_) -> ()) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        assert(graph == mask.graph.graph)
+        let mpsGraph = self.graph.graph, x = self.tensor, mask = mask.tensor
+        assert(mpsGraph == mask.operation.graph)
         
-        let m = graph.cast(mask.tensor, to: .bool, name: nil)
-        let i = graph.nonZeroIndices(m, name: nil)
+        let m = mask.dataType == .bool ? consume mask : mpsGraph.cast(mask, to: .bool, name: nil)
+        let i = mpsGraph.nonZeroIndices(consume m, name: nil)
         
-        let y = graph.gatherND(withUpdatesTensor: x, indicesTensor: i, batchDimensions: 0, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
+        let y = mpsGraph.gatherND(withUpdatesTensor: consume x, indicesTensor: consume i, batchDimensions: 0, name: nil)
+        return self.graph.tensor(consume y)
     }
     
     // x[..., None] -> x[..., .none]

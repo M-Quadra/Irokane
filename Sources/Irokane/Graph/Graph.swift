@@ -39,9 +39,10 @@ public extension Graph.Tensor {
     
     @available(iOS 15.0, *)
     borrowing func cast(to type: MPSDataType) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
+        let mpsGraph = self.graph.graph, x = self.tensor
+        if x.dataType == type { return self.graph.tensor(consume x) }
         
-        let y = graph.cast(consume x, to: type, name: nil)
+        let y = mpsGraph.cast(consume x, to: type, name: nil)
         return self.graph.tensor(consume y)
     }
     
