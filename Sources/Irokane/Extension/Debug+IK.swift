@@ -29,21 +29,42 @@ public extension Wrapper<MLMultiArray> {
 @available(iOS 15.0, *)
 public extension Graph.Tensor {
     consuming func debug() {
-        let y = self.cast(to: .float32)
-        let yData = try! y.tensorData
-        print("dtype:", yData.dataType)
-        print("shape:", yData.shape)
+        let xData = try! self.tensorData
+        print("dtype:", xData.dataType)
+        print("shape:", xData.shape)
+        let step = xData.shape.last?.intValue ?? 1
         
-        let arr = try! yData.ik.toFloat32s()
-        if arr.isEmpty { return }
-        print("mean:", arr.mean, "sum: ", arr.sum)
-        
-        let step = yData.shape.last?.intValue ?? 1
-        for i in stride(from: 0, to: arr.count, by: step) {
-            let line = (0..<step).map { arr[i+$0] }
-                .map { String(format: "%.4f", $0) }
-                .joined(separator: ", ")
-            print(consume line)
+        switch xData.dataType {
+        case .float32:
+            let arr = try! xData.ik.toFloat32s()
+            if arr.isEmpty { return }
+            print("mean:", arr.mean, "sum: ", arr.sum)
+            
+            for i in stride(from: 0, to: arr.count, by: step) {
+                let line = (0..<step).map { arr[i+$0] }
+                    .map { String(format: "%.4f", $0) }
+                    .joined(separator: ", ")
+                print(consume line)
+            }
+        case .int32:
+            let arr = try! xData.ik.toInt32s()
+            if arr.isEmpty { return }
+            
+            for i in stride(from: 0, to: arr.count, by: step) {
+                let line = (0..<step).map { String(arr[i+$0]) }
+                    .joined(separator: ", ")
+                print(consume line)
+            }
+        case .bool:
+            let arr = try! xData.ik.toBools()
+            if arr.isEmpty { return }
+            
+            for i in stride(from: 0, to: arr.count, by: step) {
+                let line = (0..<step).map { arr[i+$0] ? "True" : "False" }
+                    .joined(separator: ", ")
+                print(consume line)
+            }
+        default: print("todo")
         }
     }
 }
