@@ -17,40 +17,45 @@ public extension MLMultiArray {
 public extension Wrapper<MLMultiArray> {
     
     consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
-        let data = try self.base.toTensorData()
-        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        let arr = self.base, dataType = arr.dataType
+        let mpsGraph = graph.graph
         
-        graph.feeds[x] = consume data
-        return Graph.Tensor(graph: graph, tensor: consume x)
+        switch arr.dataType {
+        case .float64:
+            let data: Data? = arr.withUnsafeBufferPointer(ofType: Float64.self) { ptr in
+                let buf = UnsafeMutableBufferPointer<Float32>.allocate(capacity: arr.count)
+                guard let src = ptr.baseAddress,
+                      let dst = buf.baseAddress
+                else { return nil }
+                vDSP_vdpsp(src, 1, dst, 1, vDSP_Length(arr.count))
+                
+                let cnt = buf.count * MemoryLayout<Float32>.size
+                return Data(bytesNoCopy: dst, count: cnt, deallocator: .free)
+            }
+            guard let data = consume data else { throw .msg("ptr.baseAddress") }
+            
+            let x = mpsGraph.constant(consume data, shape: arr.shape, dataType: .float32)
+            let y = mpsGraph.read(consume x, name: nil)
+            return Graph.Tensor(graph: graph, tensor: consume y)
+        default: break
+        }
+        
+        let dtype: MPSDataType = switch dataType {
+        case .float16: .float16
+        case .float32: .float32
+        case .int32: .int32
+        default: throw .todo("\(dataType)")
+        }
+        
+        let data = arr.withUnsafeBytes { Data($0) }
+        let x = mpsGraph.constant(consume data, shape: arr.shape, dataType: dtype)
+        let y = mpsGraph.read(consume x, name: nil)
+        return Graph.Tensor(graph: graph, tensor: consume y)
     }
 }
 
 @available(iOS 15.4, *)
 extension MLMultiArray {
-    
-    func toTensorData() throws(Errors) -> MPSGraphTensorData {
-        if self.dataType == .float64 {
-            return try self.fp64ToTensorData()
-        }
-        
-        let (msize, dtype): (Int, MPSDataType) = switch self.dataType {
-        case .float16: (MemoryLayout<Float16>.size, .float16)
-        case .float32: (MemoryLayout<Float32>.size, .float32)
-        case .int32: (MemoryLayout<Int32>.size, .int32)
-        default: throw .todo("\(self.dataType)")
-        }
-        let len = self.count * msize
-        
-        let buf: MTLBuffer? = self.withUnsafeBytes { ptr in
-            guard let dst = ptr.baseAddress,
-                  let device = MTLCreateSystemDefaultDevice()
-            else { return nil }
-            return device.makeBuffer(bytes: dst, length: len)
-        }
-        guard let buf = consume buf else { throw .msg("makeBuffer failed, length:\(len)") }
-        
-        return MPSGraphTensorData(consume buf, shape: self.shape, dataType: dtype)
-    }
     
     func toFloat32s() throws(Errors) -> [Float32] {
         if self.dataType != .float32 { throw .msg("\(self.dataType)") }
@@ -85,30 +90,5 @@ extension MLMultiArray {
         }
         guard dst.count == cnt else { throw .msg("copy failed") }
         return dst
-    }
-}
-
-// MARK: - Private
-@available(iOS 15.4, *)
-fileprivate extension MLMultiArray {
-    
-    func fp64ToTensorData() throws(Errors) -> MPSGraphTensorData {
-        let cnt = self.count, msize = MemoryLayout<Float32>.size
-        assert(self.dataType == .float64)
-        
-        let len = msize * cnt
-        guard let device = MTLCreateSystemDefaultDevice(),
-              let buf = device.makeBuffer(length: len)
-        else { throw .msg("makeBuffer failed, length:\(len)") }
-        
-        let dst = buf.contents().bindMemory(to: Float32.self, capacity: cnt)
-        let ok = self.withUnsafeBufferPointer(ofType: Float64.self) { ptr in
-            guard let src = ptr.baseAddress else { return false }
-            vDSP_vdpsp(src, 1, dst, 1, vDSP_Length(cnt))
-            return true
-        }
-        if !ok { throw .msg("ptr.baseAddress") }
-        
-        return MPSGraphTensorData(consume buf, shape: self.shape, dataType: .float32)
     }
 }
