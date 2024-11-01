@@ -22,7 +22,7 @@ struct MLMultiArrayConvert {
         let ipt = try MLMultiArray(values)
         #expect(ipt.dataType == .int32)
         
-        let xData = try ipt.ik.to(graph: graph).tensorData
+        let xData = try ipt.ik.to(graph: graph).tensorData()
         #expect(xData.shape == shape)
         #expect(xData.dataType == .int32)
         
@@ -40,7 +40,7 @@ struct MLMultiArrayConvert {
         }
         #expect(ipt.dataType == .float16)
         
-        let xData = try ipt.ik.to(graph: graph).tensorData
+        let xData = try ipt.ik.to(graph: graph).tensorData()
         #expect(xData.shape == [3])
         #expect(xData.dataType == .float16)
         
@@ -58,7 +58,7 @@ struct MLMultiArrayConvert {
         }
         #expect(ipt.dataType == .float32)
         
-        let xData = try ipt.ik.to(graph: graph).tensorData
+        let xData = try ipt.ik.to(graph: graph).tensorData()
         #expect(xData.shape == [3])
         #expect(xData.dataType == .float32)
         
@@ -73,7 +73,7 @@ struct MLMultiArrayConvert {
         let ipt = try MLMultiArray([1.0, 2.0, 3.0])
         #expect(ipt.dataType == .double)
         
-        let xData = try ipt.ik.to(graph: graph).tensorData
+        let xData = try ipt.ik.to(graph: graph).tensorData()
         #expect(xData.shape == [3])
         #expect(xData.dataType == .float32)
         

@@ -139,17 +139,48 @@ fileprivate extension Graph.Tensor {
     /// x[mask] .= y
     @available(iOS 17.0, *)
     mutating func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
-        let graph = self.graph.graph, x = self.tensor
-        assert(graph == mask.operation.graph)
+        let mpsGraph = self.graph.graph, x = self.tensor
+        assert(mpsGraph == mask.operation.graph)
         assert(mask.operation.graph == y.operation.graph)
         assert(x.shape != nil)
         assert(x.shape == mask.shape)
         
-        let m = graph.cast(mask, to: .bool, name: nil)
-        let i = graph.nonZeroIndices(consume m, name: nil)
+        let m = mask.dataType == .bool ? mask : mpsGraph.cast(mask, to: .bool, name: nil)
         
-        let y = graph.scatterNDWithData(consume x, updates: y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
+#if DEBUG && targetEnvironment(simulator)
+        // TODO: check Metal support
+        if let path = ProcessInfo.processInfo.environment["XCTestBundlePath"],
+           path.hasSuffix("/RealDeviceTests.xctest") {
+            let cond = mpsGraph.reductionOr(with: m, axes: nil, name: nil)
+            let ys = mpsGraph.if(consume cond, then: {
+                let i = mpsGraph.nonZeroIndices(m, name: nil)
+                let y = mpsGraph.scatterNDWithData(x, updates: consume y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
+                return [y]
+            }, else: {
+                return [x]
+            }, name: nil)
+            self.tensor = ys[0]
+        } else {
+            let i = mpsGraph.nonZeroIndices(m, name: nil)
+            let y = mpsGraph.scatterNDWithData(consume x, updates: y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
+            self.tensor = consume y
+        }
+#elseif targetEnvironment(simulator)
+        let i = mpsGraph.nonZeroIndices(m, name: nil)
+        let y = mpsGraph.scatterNDWithData(consume x, updates: y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
         self.tensor = consume y
+#else
+        let cond = mpsGraph.reductionOr(with: m, axes: nil, name: nil)
+        let ys = mpsGraph.if(consume cond, then: {
+            let i = mpsGraph.nonZeroIndices(m, name: nil)
+            let y = mpsGraph.scatterNDWithData(x, updates: consume y, indices: consume i, batchDimensions: 0, mode: .set, name: nil)
+            return [y]
+        }, else: {
+            return [x]
+        }, name: nil)
+        self.tensor = ys[0]
+#endif
+        self.graph.fillTensors.insert(self.tensor)
     }
     
     /// x[..., i] += a

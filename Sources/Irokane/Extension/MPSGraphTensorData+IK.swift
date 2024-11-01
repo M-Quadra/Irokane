@@ -54,6 +54,19 @@ public extension Wrapper<MPSGraphTensorData> {
             initializedCount = cnt
         }
     }
+
+    @available(iOS 15.0, *)
+    consuming func toBools() throws -> [Bool] {
+        let tData = self.base
+        if tData.dataType != .bool { throw Errors.msg("\(tData.dataType)") }
+        let cnt = tData.shape.map { $0.intValue }.reduce(1, *)
+        
+        return try [Bool](unsafeUninitializedCapacity: cnt) { buffer, initializedCount in
+            guard let dst = buffer.baseAddress else { throw Errors.msg("buffer.baseAddress") }
+            tData.mpsndarray().readBytes(dst, strideBytes: nil)
+            initializedCount = cnt
+        }
+    }
 }
 
 @available(iOS 14.0, *)

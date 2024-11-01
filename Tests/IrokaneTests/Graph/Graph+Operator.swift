@@ -21,7 +21,7 @@ struct GraphOperator {
         
         let z = x + y
         
-        let zData = try z.tensorData
+        let zData = try z.tensorData()
         #expect(zData.shape == [3])
         
         let arr = try zData.ik.toInt32s()
@@ -36,7 +36,7 @@ struct GraphOperator {
         
         let y = 2 * x
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [6])
         
         let arr = try yData.ik.toInt32s()
@@ -50,7 +50,7 @@ struct GraphOperator {
         
         let y = x * 2
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [6])
         
         let arr = try yData.ik.toInt32s()
@@ -66,7 +66,7 @@ struct GraphOperator {
         
         let z = x * y
         
-        let zData = try z.tensorData
+        let zData = try z.tensorData()
         #expect(zData.shape == [3])
         
         let arr = try zData.ik.toInt32s()
@@ -81,7 +81,7 @@ struct GraphOperator {
         
         let y = x / 2
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3])
         
         let arr = try yData.ik.toInt32s()

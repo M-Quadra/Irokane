@@ -12,6 +12,7 @@ import MetalPerformanceShadersGraph
 public class Graph {
     public let graph: MPSGraph = MPSGraph()
     public internal(set) var feeds: [MPSGraphTensor: MPSGraphTensorData] = [:]
+    var fillTensors: Set<MPSGraphTensor> = []
     
     public init() {}
     
@@ -75,14 +76,15 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
-    var tensorData: MPSGraphTensorData { get throws(Errors) {
+    borrowing func tensorData(isFill: Bool = true) throws(Errors) -> MPSGraphTensorData {
+        let arr = [self.tensor] + (isFill ? self.graph.fillTensors : [])
         guard let tData = self.graph.graph.run(
             feeds: self.graph.feeds,
-            targetTensors: [self.tensor],
+            targetTensors: consume arr,
             targetOperations: nil
         )[self.tensor] else { throw Errors.msg("empty result") }
         return tData
-    }}
+    }
 }
 
 @available(iOS 15.4, *)

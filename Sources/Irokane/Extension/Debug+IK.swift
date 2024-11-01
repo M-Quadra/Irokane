@@ -28,8 +28,8 @@ public extension Wrapper<MLMultiArray> {
 
 @available(iOS 15.0, *)
 public extension Graph.Tensor {
-    consuming func debug() {
-        let xData = try! self.tensorData
+    consuming func debug(maxLine: Int = 3) {
+        let xData = try! self.tensorData()
         print("dtype:", xData.dataType)
         print("shape:", xData.shape)
         let step = xData.shape.last?.intValue ?? 1
@@ -44,7 +44,8 @@ public extension Graph.Tensor {
                 let line = (0..<step).map { arr[i+$0] }
                     .map { String(format: "%.4f", $0) }
                     .joined(separator: ", ")
-                print(consume line)
+                print("[\(consume line)]")
+                if i/step >= maxLine { break }
             }
         case .int32:
             let arr = try! xData.ik.toInt32s()

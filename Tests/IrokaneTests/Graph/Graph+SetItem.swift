@@ -42,29 +42,28 @@ struct GraphSetItem {
     }
     
     @available(iOS 17.0, *)
-    @Test("x[mask] = y")
-    func byMaskTensor() async throws {
+    @Test("x[mask] = y", arguments: Array(0...6))
+    func byMaskTensor(count: Int) throws {
         let graph = Irokane.Graph()
         
         var x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
-        let mask = try MLMultiArray([
-            0, 1, 0,
-            1, 0, 1,
-        ]).ik.to(graph: graph)
+        let maskArr = Array(0..<6).map { $0 < count ? $0+6 : 0 }
+            .shuffled()
+        let mask = try MLMultiArray(maskArr).ik.to(graph: graph)
             .reshape([2, 3])
-        let y = try MLMultiArray([7, 8, 9]).ik.to(graph: graph)
+        let y = try MLMultiArray(maskArr.filter { $0 != 0 }).ik.to(graph: graph)
         
         x[mask] .= y
         
-        let xData = try x.tensorData
+        let xData = try x.tensorData()
         #expect(xData.shape == [2, 3])
         
         let arr = try xData.ik.toInt32s()
-        #expect(arr == [
-            0, 7, 2,
-            8, 4, 9
-        ])
+        let expectArr = maskArr.enumerated().map { i, v in
+            Int32(v == 0 ? i : v)
+        }
+        #expect(arr == expectArr)
     }
     
     @available(iOS 18.0, *)
@@ -115,7 +114,7 @@ struct GraphSetItem {
         
         x[..., -1] += 1
         
-        let xData = try x.tensorData
+        let xData = try x.tensorData()
         #expect(xData.shape == [3])
         
         let arr = try xData.ik.toInt32s()

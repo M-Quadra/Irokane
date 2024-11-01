@@ -37,7 +37,7 @@ struct FunctionalGraphTests {
         
         let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1, 4, 2])
         
         let arr = try yData.ik.toInt32s()

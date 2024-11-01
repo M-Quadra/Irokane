@@ -15,19 +15,19 @@ struct GraphGetItem {
     
     @available(iOS 17.0, *)
     @Test("x[mask]")
-    func getByMask() async throws {
-        let graph = Graph()
+    func getByMask() throws {
+        let graph = Irokane.Graph()
         let x = try MLMultiArray((0..<6)).ik.to(graph: graph)
+            .reshape([2, 3])
         let m = try MLMultiArray([
             0, 1, 0,
             1, 0, 1
         ]).ik.to(graph: graph)
-        let x0 = x.reshape([2, 3])
-        let m0 = m.reshape([2, 3])
+            .reshape([2, 3])
         
-        let y: Graph.Tensor = x0[m0]
+        let y = x[m]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3])
         
         let arr = try yData.ik.toInt32s()
@@ -35,16 +35,16 @@ struct GraphGetItem {
     }
     
     @available(iOS 17.0, *)
-    @Test("x[mask, :]")
-    func getByMaskSlice() async throws {
-        let graph = Graph()
+    @Test("x[mask, ...]")
+    func getByMaskSlice() throws {
+        let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
+            .reshape([2, 3])
         let m = try MLMultiArray([0, 2]).ik.to(graph: graph)
-        let x0 = x.reshape([2, 3])
         
-        let y = x0[m, ...]
+        let y = x[m, ...]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1, 3])
         
         let arr = try yData.ik.toInt32s()
@@ -59,7 +59,7 @@ struct GraphGetItem {
         
         let y = x[..., 1...]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [2])
         
         let arr = try yData.ik.toInt32s()
@@ -74,7 +74,7 @@ struct GraphGetItem {
         
         let y = x[..., ..<(-1)]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [2])
         
         let arr = try yData.ik.toInt32s()
@@ -89,7 +89,7 @@ struct GraphGetItem {
         
         let y = x[..., .none]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3, 1])
         
         let arr = try yData.ik.toInt32s()
@@ -104,7 +104,7 @@ struct GraphGetItem {
         
         let y: Graph.Tensor = x.reshape([3, 2])[..., 0]
 
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3])
 
         let arr = try yData.ik.toInt32s()
@@ -120,7 +120,7 @@ struct GraphGetItem {
         
         let y = x[.all, ..<(-1)]
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1, 2, 2])
         
         let arr = try yData.ik.toInt32s()

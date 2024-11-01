@@ -77,6 +77,7 @@ public extension Graph.Tensor {
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
     
+    // x[mask, ...]
     @available(iOS 17.0, *)
     subscript(mask: Graph.Tensor, _: (UnboundedRange_) -> ()) -> Graph.Tensor {
         let graph = self.graph.graph, x = self.tensor

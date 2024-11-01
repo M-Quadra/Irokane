@@ -21,7 +21,7 @@ struct GraphTests {
         
         let y = Irokane.sum(x, dim: -1)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1])
         
         let arr = try yData.ik.toInt32s()
@@ -37,7 +37,7 @@ struct GraphTests {
         
         let y = Irokane.sum(x0, dim: -1)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [2])
         
         let arr = try yData.ik.toInt32s()
@@ -53,7 +53,7 @@ struct GraphTests {
         
         let y = Irokane.sum(x, dims: [1, 2])
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1])
         
         let arr = try yData.ik.toInt32s()
@@ -79,7 +79,7 @@ struct GraphTests {
         
         let y = x0.gather(dim: -1, index: i0)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3, 1])
         
         let arr = try yData.ik.toInt32s()
@@ -94,7 +94,7 @@ struct GraphTests {
         
         let y = x.pow(2)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3])
         
         let arr = try yData.ik.toInt32s()
@@ -108,7 +108,7 @@ struct GraphTests {
         
         let y = Irokane.sqrt(x*x)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3])
         
         let arr = try yData.ik.toInt32s()
@@ -126,7 +126,7 @@ struct GraphTests {
         
         let z = Irokane.cat(x0, y0, dim: 1)
         
-        let zData = try z.tensorData
+        let zData = try z.tensorData()
         #expect(zData.shape == [1, 2, 3])
         
         let arr = try zData.ik.toInt32s()
@@ -202,7 +202,7 @@ struct GraphTests {
         
         let y = x.max()
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1])
         
         let arr = try yData.ik.toInt32s()
@@ -218,7 +218,7 @@ struct GraphTests {
         
         let y = x.max()
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1])
         
         let arr = try yData.ik.toInt32s()
@@ -233,7 +233,7 @@ struct GraphTests {
         
         let y = Irokane.arange(x)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [len as NSNumber])
         
         let arr = try yData.ik.toInt32s()
@@ -248,7 +248,7 @@ struct GraphTests {
         
         let y = Irokane.arange(x.max())
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [5])
         
         let arr = try yData.ik.toInt32s()
@@ -264,7 +264,7 @@ struct GraphTests {
         
         let y = x.transpose(0, 2)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [3, 2, 1])
         
         let arr = try yData.ik.toInt32s()
@@ -308,7 +308,7 @@ struct GraphTests {
         
         let y = x.squeeze(1)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [2, 3, 1])
         
         let arr = try yData.ik.toInt32s()
@@ -345,7 +345,7 @@ struct GraphTests {
         
         let y = Irokane.cumsum(x, dim: -1)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [6])
         
         let arr = try yData.ik.toInt32s()
@@ -361,7 +361,7 @@ struct GraphTests {
         
         let y = Irokane.flip(x, dims: [1])
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1, 2, 3])
         
         let arr = try yData.ik.toInt32s()
@@ -380,7 +380,7 @@ struct GraphTests {
         
         let y = Irokane.zerosLike(x)
         
-        let yData = try y.tensorData
+        let yData = try y.tensorData()
         #expect(yData.shape == [1, 2, 3])
         
         let sum = try yData.ik.toInt32s().reduce(0, +)
