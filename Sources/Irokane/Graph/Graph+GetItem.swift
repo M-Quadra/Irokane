@@ -62,19 +62,20 @@ public extension Graph.Tensor {
     
     @available(iOS 17.0, *)
     subscript(mask: Graph.Tensor) -> Graph.Tensor {
-        let graph = self.graph.graph, x = self.tensor
-        assert(graph == mask.graph.graph)
+        let mpsGraph = self.graph.graph, x = self.tensor
+        assert(mpsGraph == mask.graph.graph)
         assert(x.shape != nil)
         assert(x.shape == mask.tensor.shape)
         
         let cnt = mask.shape.map { $0.intValue }
             .reduce(1, *) as NSNumber
-        let x0 = graph.reshape(x, shape: [cnt, 1], name: nil)
-        let m0 = graph.reshape(mask.tensor, shape: [cnt, 1], name: nil)
+        let x0 = mpsGraph.reshape(x, shape: [cnt, 1], name: nil)
+        let m0 = mpsGraph.reshape(mask.tensor, shape: [cnt, 1], name: nil)
+        let i = mpsGraph.nonZeroIndices(consume m0, name: nil)
         
-        let i = graph.nonZeroIndices(m0, name: nil)
-        let y = graph.gatherND(withUpdatesTensor: x0, indicesTensor: i, batchDimensions: 0, name: nil)
-        return Graph.Tensor(graph: self.graph, tensor: consume y)
+        let y = mpsGraph.gatherND(withUpdatesTensor: consume x0, indicesTensor: consume i, batchDimensions: 0, name: nil)
+        self.graph.fillTensors.insert(y)
+        return self.graph.tensor(consume y)
     }
     
     // x[mask, ...]
@@ -87,6 +88,7 @@ public extension Graph.Tensor {
         let i = mpsGraph.nonZeroIndices(consume m, name: nil)
         
         let y = mpsGraph.gatherND(withUpdatesTensor: consume x, indicesTensor: consume i, batchDimensions: 0, name: nil)
+        self.graph.fillTensors.insert(y)
         return self.graph.tensor(consume y)
     }
     
