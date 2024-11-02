@@ -73,7 +73,7 @@ public extension Graph.Tensor {
 @available(iOS 14.0, *)
 public extension Graph {
     func debug() {
-        self.graph.perform(Selector(("dump")))
+        self.mpsGraph.perform(Selector(("dump")))
     }
 }
 #endif

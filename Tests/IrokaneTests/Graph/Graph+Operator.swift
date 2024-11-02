@@ -97,7 +97,7 @@ struct GraphOperator {
         
         let z = x < y
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
@@ -121,7 +121,7 @@ struct GraphOperator {
         
         let z = x[..., .none] >= y.reshape([3, 2])
         
-        guard let zData = graph.graph.run(
+        guard let zData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil

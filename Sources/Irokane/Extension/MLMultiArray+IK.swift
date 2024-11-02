@@ -18,7 +18,7 @@ public extension Wrapper<MLMultiArray> {
     
     consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
         let arr = self.base, dataType = arr.dataType
-        let mpsGraph = graph.graph
+        let mpsGraph = graph.mpsGraph
         
         switch arr.dataType {
         case .float64:

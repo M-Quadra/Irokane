@@ -13,7 +13,7 @@ public extension Wrapper<MPSGraphTensorData> {
     
     consuming func to(graph: Graph) throws(Errors) -> Graph.Tensor {
         let data = self.base
-        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        let x = graph.mpsGraph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
         
         graph.feeds[x] = consume data
         return Graph.Tensor(graph: graph, tensor: consume x)

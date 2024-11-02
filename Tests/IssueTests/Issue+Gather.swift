@@ -17,7 +17,7 @@ struct GatherIssue {
     @available(iOS 17.0, *)
     @Test(.enabled(if: isRunIssue))
     func failed0() throws {
-        let graph = Graph(), mpsGraph = graph.graph
+        let graph = Graph(), mpsGraph = graph.mpsGraph
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .reshape([2, 3])
         let m = try MLMultiArray([0, 2]).ik.to(graph: graph)
@@ -49,7 +49,7 @@ struct GatherIssue {
     @available(iOS 17.0, *)
     @Test(.enabled(if: isRunIssue))
     func failed1() throws {
-        let graph = Irokane.Graph(), mpsGraph = graph.graph
+        let graph = Irokane.Graph(), mpsGraph = graph.mpsGraph
         let x = try MLMultiArray((0..<6)).ik.to(graph: graph)
             .reshape([2, 3])
         let m = try MLMultiArray([

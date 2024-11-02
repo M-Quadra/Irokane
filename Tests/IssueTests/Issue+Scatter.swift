@@ -17,7 +17,7 @@ struct ScatterIssue {
     @available(iOS 17.0, *)
     @Test(.enabled(if: isRunIssue))
     func failed0() throws {
-        let graph = Irokane.Graph(), mpsGraph = graph.graph
+        let graph = Irokane.Graph(), mpsGraph = graph.mpsGraph
         var x = try MLMultiArray([1, 2, 3]).ik.to(graph: graph)
         let mask = try MLMultiArray([0, 1, 0]).ik.to(graph: graph)
         let y = try MLMultiArray([4]).ik.to(graph: graph)
@@ -47,7 +47,7 @@ struct ScatterIssue {
     @available(iOS 17.0, *)
     @Test(.enabled(if: isRunIssue))
     func failed1() throws {
-        let graph = Irokane.Graph(), mpsGraph = graph.graph
+        let graph = Irokane.Graph(), mpsGraph = graph.mpsGraph
         var x = try MLMultiArray([1, 2, 3]).ik.to(graph: graph)
         let mask = try MLMultiArray([0, 1, 0]).ik.to(graph: graph)
         let y = try MLMultiArray([4]).ik.to(graph: graph)

@@ -12,7 +12,7 @@ public extension Graph.Tensor {
     
     // x / a
     static func / (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         let a = graph.constant(Double(rhs), dataType: x.dataType)
         
         let y = graph.division(consume x, consume a, name: nil)
@@ -21,14 +21,14 @@ public extension Graph.Tensor {
     
     // -x
     prefix static func - (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = tensor.graph.graph, x = tensor.tensor
+        let graph = tensor.graph.mpsGraph, x = tensor.tensor
         
         let y = graph.negative(with: x, name: nil)
         return Graph.Tensor(graph: tensor.graph, tensor: consume y)
     }
     
     static func >= (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         let a = graph.constant(rhs, dataType: x.dataType)
         
         let y = graph.greaterThanOrEqualTo(consume x, consume a, name: nil)
@@ -36,15 +36,15 @@ public extension Graph.Tensor {
     }
     
     static func >= (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
         
         let y = graph.greaterThanOrEqualTo(x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
     static func <= (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         let y = graph.constant(rhs, dataType: x.dataType)
         
         let z = graph.lessThanOrEqualTo(consume x, consume y, name: nil)
@@ -53,7 +53,7 @@ public extension Graph.Tensor {
     
     // a * x
     static func * (lhs: Double, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = rhs.graph.graph, x = rhs.tensor
+        let graph = rhs.graph.mpsGraph, x = rhs.tensor
         let a = graph.constant(lhs, dataType: x.dataType)
         
         let y = graph.multiplication(consume x, consume a, name: nil)
@@ -61,7 +61,7 @@ public extension Graph.Tensor {
     }
     // x * a
     static func * (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         let a = graph.constant(rhs, dataType: x.dataType)
         
         let y = graph.multiplication(consume x, consume a, name: nil)
@@ -70,8 +70,8 @@ public extension Graph.Tensor {
     
     // x * y
     static func * (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
         
         let y = graph.multiplication(consume x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
@@ -79,7 +79,7 @@ public extension Graph.Tensor {
     
     // a + x
     static func + (lhs: Double, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = rhs.graph.graph, x = rhs.tensor
+        let graph = rhs.graph.mpsGraph, x = rhs.tensor
         let a = graph.constant(lhs, dataType: x.dataType)
         
         let y = graph.addition(consume x, consume a, name: nil)
@@ -91,30 +91,30 @@ public extension Graph.Tensor {
     
     // x + y
     static func + (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
 
         let y = graph.addition(consume x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     
     static func - (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
         assert(x.dataType == rhs.tensor.dataType)
         
         let y = graph.subtraction(consume x, rhs.tensor, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     static func - (lhs: borrowing Graph.Tensor, rhs: Int) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         let a = graph.constant(Double(rhs), dataType: x.dataType)
         
         let y = graph.subtraction(consume x, consume a, name: nil)
         return Graph.Tensor(graph: lhs.graph, tensor: consume y)
     }
     static func - (lhs: Int, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = rhs.graph.graph, x = rhs.tensor
+        let graph = rhs.graph.mpsGraph, x = rhs.tensor
         let a = graph.constant(Double(lhs), dataType: x.dataType)
         
         let y = graph.subtraction(consume a, consume x, name: nil)
@@ -127,8 +127,8 @@ public extension Graph.Tensor {
 #else
         let name: String? = nil
 #endif
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
         assert(x.dataType == rhs.tensor.dataType)
         
         let y = graph.lessThan(consume x, rhs.tensor, name: consume name)
@@ -141,7 +141,7 @@ public extension Graph.Tensor {
     
     // x / y
     static func / (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
         assert(lhs.graph === rhs.graph)
         
         var y = rhs.tensor
@@ -155,7 +155,7 @@ public extension Graph.Tensor {
     
     // ~x
     prefix static func ~ (tensor: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = tensor.graph.graph, x = tensor.tensor
+        let graph = tensor.graph.mpsGraph, x = tensor.tensor
         assert(x.dataType == .bool)
         let a = graph.constant(0, dataType: x.dataType)
         
@@ -164,8 +164,8 @@ public extension Graph.Tensor {
     }
     
     static func & (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.graph, x = lhs.tensor
-        assert(graph == rhs.graph.graph)
+        let graph = lhs.graph.mpsGraph, x = lhs.tensor
+        assert(graph == rhs.graph.mpsGraph)
         var y = rhs.tensor
         if x.dataType != y.dataType {
             y = graph.cast(y, to: x.dataType, name: nil)

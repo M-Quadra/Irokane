@@ -13,7 +13,7 @@ public extension Wrapper<MLTensor> {
     
     consuming func to(graph: Graph) async throws(Errors) -> Graph.Tensor {
         let data = try await self.base.toTensorData()
-        let x = graph.graph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
+        let x = graph.mpsGraph.placeholder(shape: data.shape, dataType: data.dataType, name: nil)
         
         graph.feeds[x] = consume data
         return Graph.Tensor(graph: graph, tensor: consume x)

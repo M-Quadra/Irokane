@@ -27,7 +27,7 @@ struct GraphSetItem {
         
         x[mask] .= 6
         
-        guard let xData = graph.graph.run(
+        guard let xData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [x.tensor],
             targetOperations: nil
@@ -75,7 +75,7 @@ struct GraphSetItem {
         
         x[..., 1] .= 2
         
-        guard let xData = graph.graph.run(
+        guard let xData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [x.tensor],
             targetOperations: nil
@@ -95,7 +95,7 @@ struct GraphSetItem {
         
         x[..., -1] .= 2
         
-        guard let xData = graph.graph.run(
+        guard let xData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [x.tensor],
             targetOperations: nil

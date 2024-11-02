@@ -81,7 +81,7 @@ fileprivate extension Graph.Tensor {
     
     /// x[..., i] .= a
     mutating func setLast(index: Int, with a: Double) {
-        let graph = self.graph.graph, x = self.tensor
+        let graph = self.graph.mpsGraph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
             return
@@ -119,7 +119,7 @@ fileprivate extension Graph.Tensor {
     
     /// x[mask] .= a
     mutating func setBy(mask: MPSGraphTensor, with a: Double) {
-        let graph = self.graph.graph, x = self.tensor
+        let graph = self.graph.mpsGraph, x = self.tensor
         assert(x.shape != nil)
         assert(x.shape == mask.shape)
         
@@ -139,7 +139,7 @@ fileprivate extension Graph.Tensor {
     /// x[mask] .= y
     @available(iOS 17.0, *)
     mutating func setBy(mask: MPSGraphTensor, with y: MPSGraphTensor) {
-        let mpsGraph = self.graph.graph, x = self.tensor
+        let mpsGraph = self.graph.mpsGraph, x = self.tensor
         assert(mpsGraph == mask.operation.graph)
         assert(mask.operation.graph == y.operation.graph)
         assert(x.shape != nil)
@@ -185,7 +185,7 @@ fileprivate extension Graph.Tensor {
     
     /// x[..., i] += a
     mutating func addLast(index: Int, with a: Double) {
-        let graph = self.graph.graph, x = self.tensor
+        let graph = self.graph.mpsGraph, x = self.tensor
         guard let len = x.shape?.last?.intValue else {
             assertionFailure("shape error")
             return

@@ -22,7 +22,7 @@ struct FunctionalGraphTests {
         
         let y = F.pad(x, pad: (3, 4))
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -58,7 +58,7 @@ struct FunctionalGraphTests {
         
         let y = F.softmax(x, dim: -1)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -80,7 +80,7 @@ struct FunctionalGraphTests {
         
         let y = F.softplus(x, beta: 2, threshold: 2)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil

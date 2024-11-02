@@ -15,7 +15,7 @@ public extension Double {
 public extension Wrapper<Double> {
     
     consuming func to(graph: Graph, dataType: MPSDataType = .float16) -> Graph.Tensor {
-        let a = graph.graph.constant(self.base, dataType: dataType)
+        let a = graph.mpsGraph.constant(self.base, dataType: dataType)
         return Graph.Tensor(graph: graph, tensor: consume a)
     }
 }

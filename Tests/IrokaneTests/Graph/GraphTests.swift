@@ -144,7 +144,7 @@ struct GraphTests {
         
         let y = Irokane.maximum(x, 0)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -164,7 +164,7 @@ struct GraphTests {
         
         let y = Irokane.exp(x)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -183,7 +183,7 @@ struct GraphTests {
         
         let y = Irokane.ceil(x)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -288,7 +288,7 @@ struct GraphTests {
         
         let z = Irokane.matmul(x, y)
         
-        guard let zData = graph.graph.run(
+        guard let zData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [z.tensor],
             targetOperations: nil
@@ -325,7 +325,7 @@ struct GraphTests {
         
         let y = try Irokane.randnLike(x)
         
-        guard let yData = graph.graph.run(
+        guard let yData = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y.tensor],
             targetOperations: nil
@@ -397,7 +397,7 @@ struct GraphTests {
         let ys = Irokane.split(x, splits: [1, 1], dim: 1)
         let y0 = ys[0], y1 = ys[1]
         
-        let dic = graph.graph.run(
+        let dic = graph.mpsGraph.run(
             feeds: graph.feeds,
             targetTensors: [y0.tensor, y1.tensor],
             targetOperations: nil

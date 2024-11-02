@@ -15,7 +15,7 @@ public struct Functional {
 public extension Functional {
     
     static func softmax(_ input: borrowing Graph.Tensor, dim: Int) -> Graph.Tensor {
-        let graph = input.graph.graph, x = input.tensor
+        let graph = input.graph.mpsGraph, x = input.tensor
         assert(x.dataType != .int32)
         
         let y = graph.softMax(with: x, axis: dim, name: nil)
@@ -27,7 +27,7 @@ public extension Functional {
 public extension Functional {
     
     static func pad(_ input: borrowing Graph.Tensor, pad: (left: Int, right: Int)) -> Graph.Tensor {
-        let graph = input.graph.graph, x = input.tensor
+        let graph = input.graph.mpsGraph, x = input.tensor
         guard let rank = x.shape?.count, rank > 0 else {
             assertionFailure("input.shape is nil")
             return Graph.Tensor(graph: input.graph, tensor: consume x)
@@ -41,7 +41,7 @@ public extension Functional {
         return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
     static func pad(_ input: borrowing Graph.Tensor, pad: borrowing [(left: Int, right: Int)]) -> Graph.Tensor {
-        let graph = input.graph.graph, x = input.tensor
+        let graph = input.graph.mpsGraph, x = input.tensor
         guard let rank = x.shape?.count, rank > 0 else {
             assertionFailure("input.shape is nil")
             return Graph.Tensor(graph: input.graph, tensor: consume x)
@@ -62,7 +62,7 @@ public extension Functional {
     }
     
     static func softplus(_ input: borrowing Graph.Tensor, beta: Double = 1, threshold: Double = 20) -> Graph.Tensor {
-        let graph = input.graph.graph, x = input.tensor
+        let graph = input.graph.mpsGraph, x = input.tensor
         let b = graph.constant(beta, dataType: x.dataType)
         let t = graph.constant(threshold, dataType: x.dataType)
         assert(x.dataType != .int32)
