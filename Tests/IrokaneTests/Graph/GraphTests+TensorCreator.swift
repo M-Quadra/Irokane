@@ -1,5 +1,5 @@
 //
-//  Graph+TensorCreator.swift
+//  GraphTests+TensorCreator.swift
 //  Irokane
 //
 //  Created by m_quadra on 2024/11/3.
@@ -8,7 +8,7 @@
 import Testing
 import Irokane
 
-struct GraphTensorCreator {
+struct GraphTestsTensorCreator {
     
     @available(iOS 14.0, *)
     @Test func zeros() throws {
