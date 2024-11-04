@@ -7,6 +7,7 @@
 
 import Testing
 import Irokane
+import Foundation
 
 struct GraphTestsTensorCreator {
     
@@ -14,12 +15,26 @@ struct GraphTestsTensorCreator {
     @Test func zeros() throws {
         let graph = Irokane.Graph()
         
-        let y = graph.zeros(3)
+        let x = graph.zeros(3)
         
-        let yDaya = try y.tensorData()
-        #expect(yDaya.shape == [3])
-        
-        let arr = try yDaya.ik.toInt32s()
+        let xDaya = try x.tensorData()
+        let arr = try xDaya.ik.toInt32s()
+        #expect(xDaya.shape == [3])
         #expect(arr == [0, 0, 0])
+    }
+    
+    @available(iOS 14.0, *)
+    @Test("data -> Graph.Tensor")
+    func dataToGraphTensor() throws {
+        let graph = Irokane.Graph()
+        let src: [Float32] = [1, 2, 3]
+        let data = src.withUnsafeBytes { Data($0) }
+        
+        let x = graph.tensor(data, shape: [3], dataType: .float32)
+        
+        let xData = try x.tensorData()
+        let arr = try xData.ik.toFloat32s()
+        #expect(xData.shape == [3])
+        #expect(arr == src)
     }
 }
