@@ -79,11 +79,11 @@ public extension Graph.Tensor {
     
     // a + x
     static func + (lhs: Double, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = rhs.graph.mpsGraph, x = rhs.tensor
-        let a = graph.constant(lhs, dataType: x.dataType)
+        let mpsGraph = rhs.graph.mpsGraph, x = rhs.tensor
+        let a = mpsGraph.constant(lhs, dataType: x.dataType)
         
-        let y = graph.addition(consume x, consume a, name: nil)
-        return Graph.Tensor(graph: rhs.graph, tensor: consume y)
+        let y = mpsGraph.addition(consume x, consume a, name: nil)
+        return rhs.graph.tensor(consume y)
     }
     static func + (lhs: borrowing Graph.Tensor, rhs: Double) -> Graph.Tensor {
         return rhs + lhs

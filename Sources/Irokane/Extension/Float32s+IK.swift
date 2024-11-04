@@ -31,6 +31,7 @@ extension [Float32] {
 }
 
 extension [Float32] {
+    var ik: Wrapper<[Float32]> { Wrapper(base: self) }
     
     var mean: Float32 {
         var mean: Float32 = 0
@@ -49,5 +50,20 @@ extension [Float32] {
         var sum: Float32 = 0
         vDSP_sve(self, 1, &sum, vDSP_Length(self.count))
         return sum
+    }
+}
+
+extension Wrapper<[Float32]> {
+    
+    var min: Float32 {
+        var min: Float32 = 0
+        vDSP_minv(self.base, 1, &min, vDSP_Length(self.base.count))
+        return min
+    }
+    
+    var max: Float32 {
+        var max: Float32 = 0
+        vDSP_maxv(self.base, 1, &max, vDSP_Length(self.base.count))
+        return max
     }
 }

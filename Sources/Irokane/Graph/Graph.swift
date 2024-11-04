@@ -120,4 +120,12 @@ public extension Graph.Tensor {
         let y = graph.squeeze(consume x0, name: nil)
         return Graph.Tensor(graph: self.graph, tensor: consume y)
     }
+    
+    borrowing func mean(dim: Int) -> Graph.Tensor {
+        let mpsGraph = self.graph.mpsGraph, x = self.tensor
+        
+        let x0 = mpsGraph.mean(of: consume x, axes: [dim as NSNumber], name: nil)
+        let y = mpsGraph.squeeze(consume x0, axis: dim, name: nil)
+        return self.graph.tensor(consume y)
+    }
 }

@@ -413,4 +413,20 @@ struct GraphTests {
         #expect(arr0 == [0, 1, 2])
         #expect(arr1 == [3, 4, 5])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("x.mean(dim=-1)")
+    func mean() throws {
+        let graph = Irokane.Graph()
+        let x = try MLMultiArray(0..<6).ik.to(graph: graph)
+            .reshape([2, 3])
+            .cast(to: .float32)
+        
+        let y = x.mean(dim: -1)
+        
+        let yData = try y.tensorData()
+        let arr = try yData.ik.toFloat32s()
+        #expect(yData.shape == [2])
+        #expect(arr == [1, 4])
+    }
 }
