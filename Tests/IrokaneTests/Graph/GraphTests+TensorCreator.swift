@@ -37,4 +37,30 @@ struct GraphTestsTensorCreator {
         #expect(xData.shape == [3])
         #expect(arr == src)
     }
+    
+    @available(iOS 15.4, *)
+    @Test("arange(end=a)")
+    func arange0() throws {
+        let graph = Irokane.Graph()
+        
+        let x = graph.arange(end: 3)
+        
+        let xData = try x.tensorData()
+        let arr = try xData.ik.toInt32s()
+        #expect(xData.shape == [3])
+        #expect(arr == [0, 1, 2])
+    }
+    
+    @available(iOS 15.4, *)
+    @Test("arange(end=a, dtype=t)")
+    func arange1() throws {
+        let graph = Irokane.Graph()
+        
+        let x = graph.arange(end: 3, dtype: .float32)
+        
+        let xData = try x.tensorData()
+        let arr = try xData.ik.toFloat32s()
+        #expect(xData.shape == [3])
+        #expect(arr == [0, 1, 2])
+    }
 }

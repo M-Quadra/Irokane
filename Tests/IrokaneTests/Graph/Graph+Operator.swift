@@ -97,14 +97,9 @@ struct GraphOperator {
         
         let z = x < y
         
-        guard let yData = graph.mpsGraph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
-        #expect(yData.shape == [3])
-        
-        let arr = try yData.toBools()
+        let zData = try z.tensorData(isFill: false)
+        let arr = try zData.ik.toBools()
+        #expect(zData.shape == [3])
         #expect(arr == [true, true, true])
     }
     
@@ -117,18 +112,13 @@ struct GraphOperator {
             1, 0,
             1, 0,
             1, 0
-        ]).ik.to(graph: graph)
+        ]).ik.to(graph: graph).reshape([3, 2])
         
-        let z = x[..., .none] >= y.reshape([3, 2])
+        let z = x[..., .none] >= y
         
-        guard let zData = graph.mpsGraph.run(
-            feeds: graph.feeds,
-            targetTensors: [z.tensor],
-            targetOperations: nil
-        )[z.tensor] else { throw Errors.msg("empty result") }
+        let zData = try z.tensorData(isFill: false)
+        let arr = try zData.ik.toBools()
         #expect(zData.shape == [3, 2])
-        
-        let arr = try zData.toBools()
         #expect(arr == [
             false, true,
             true,  true,

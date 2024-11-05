@@ -1,6 +1,6 @@
 //
 //  MPSGraphTensorData+IK.swift
-//  
+//
 //
 //  Created by m_quadra on 2024/6/23.
 //
@@ -30,7 +30,7 @@ public extension Wrapper<MPSGraphTensorData> {
             initializedCount = cnt
         }
     }
-
+    
     consuming func toFloat16s() throws -> [Float16] {
         let tData = self.base
         if tData.dataType != .float16 { throw Errors.msg("\(tData.dataType)") }
@@ -42,7 +42,7 @@ public extension Wrapper<MPSGraphTensorData> {
             initializedCount = cnt
         }
     }
-
+    
     consuming func toFloat32s() throws -> [Float32] {
         let tData = self.base
         if tData.dataType != .float32 { throw Errors.msg("\(tData.dataType)") }
@@ -54,7 +54,7 @@ public extension Wrapper<MPSGraphTensorData> {
             initializedCount = cnt
         }
     }
-
+    
     @available(iOS 15.0, *)
     consuming func toBools() throws -> [Bool] {
         let tData = self.base
@@ -105,15 +105,6 @@ extension MPSGraphTensorData {
         if self.dataType != .float32 { throw .msg("\(self.dataType)") }
         let cnt = self.shape.map { $0.intValue }.reduce(1, *)
         var arr = [Float32](repeating: -.greatestFiniteMagnitude, count: cnt)
-        self.mpsndarray().readBytes(&arr, strideBytes: nil)
-        return arr
-    }
-    
-    @available(iOS 15.0, *)
-    func toBools() throws(Errors) -> [Bool] {
-        if self.dataType != .bool { throw .msg("\(self.dataType)") }
-        let cnt = self.shape.map { $0.intValue }.reduce(1, *)
-        var arr = [Bool](repeating: false, count: cnt)
         self.mpsndarray().readBytes(&arr, strideBytes: nil)
         return arr
     }

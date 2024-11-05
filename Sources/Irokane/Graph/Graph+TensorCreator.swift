@@ -27,4 +27,14 @@ public extension Graph {
         let y = mpsGraph.read(consume x, name: nil)
         return self.tensor(consume y)
     }
+    
+    @available(iOS 15.4, *)
+    borrowing func arange(end: Int, dtype: MPSDataType = .int32) -> Graph.Tensor {
+        let mpsGraph = self.mpsGraph
+        
+        let x = mpsGraph.coordinate(alongAxis: 0, withShape: [end as NSNumber], name: nil)
+        let x0 = x.dataType == dtype ? consume x : mpsGraph.cast(x, to: dtype, name: nil)
+        let y = mpsGraph.read(consume x0, name: nil)
+        return self.tensor(consume y)
+    }
 }
