@@ -90,4 +90,42 @@ struct FunctionalGraphTests {
         let arr = try yData.toFloat16s()
         #expect(arr == [0.6567, 1.5, 2.5])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("F.layer_norm(x, [x.shape[-1]]")
+    func layerNorm0() throws {
+        let graph = Irokane.Graph()
+        let x = graph.arange(end: 6, dtype: .float32)
+            .reshape([2, 3])
+        
+        let y = F.layerNorm(x)
+        
+        let yData = try y.tensorData()
+        let arr = try yData.toFloat32s()
+        #expect(yData.shape == [2, 3])
+        #expect(arr == [
+            -1.2247356, 0.0, 1.2247356,
+            -1.2247356, 0.0, 1.2247356,
+        ])
+    }
+    
+    @available(iOS 15.4, *)
+    @Test("F.layer_norm(x, [x.shape[-1]], weight=w, bias=b)")
+    func layerNorm1() throws {
+        let graph = Irokane.Graph()
+        let x = graph.arange(end: 6, dtype: .float32)
+            .reshape([2, 3])
+        let w = graph.zeros(3).cast(to: .float32) + 0.1
+        let b = graph.zeros(3).cast(to: .float32) + 0.01
+        
+        let y = F.layerNorm(x, weight: w, bias: b)
+        
+        let yData = try y.tensorData()
+        let arr = try yData.toFloat32s()
+        #expect(yData.shape == [2, 3])
+        #expect(arr == [
+            -0.11247356, 0.01, 0.13247356,
+            -0.11247356, 0.01, 0.13247356,
+        ])
+    }
 }

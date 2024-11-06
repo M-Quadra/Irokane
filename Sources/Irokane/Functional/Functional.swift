@@ -21,6 +21,26 @@ public extension Functional {
         let y = graph.softMax(with: x, axis: dim, name: nil)
         return Graph.Tensor(graph: input.graph, tensor: consume y)
     }
+    
+    static func layerNorm(
+        _ input: borrowing Graph.Tensor,
+        weight: Graph.Tensor? = nil,
+        bias: Graph.Tensor? = nil,
+        eps: Float = 1e-5
+    ) -> Graph.Tensor {
+        let mpsGraph = input.graph.mpsGraph, x = input.tensor
+        let mean = mpsGraph.mean(of: x, axes: [-1], name: nil)
+        let variance = mpsGraph.variance(of: x, mean: mean, axes: [-1], name: nil)
+        
+        let y = mpsGraph.normalize(
+            consume x,
+            mean: consume mean, variance: consume variance,
+            gamma: weight?.tensor, beta: bias?.tensor,
+            epsilon: eps,
+            name: nil
+        )
+        return input.graph.tensor(consume y)
+    }
 }
 
 @available(iOS 15.0, *)
