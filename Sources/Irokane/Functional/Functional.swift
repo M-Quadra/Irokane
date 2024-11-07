@@ -41,6 +41,23 @@ public extension Functional {
         )
         return input.graph.tensor(consume y)
     }
+    
+    static func gelu(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = input.graph, mpsGraph = graph.mpsGraph
+        let x = input.tensor
+        let half = mpsGraph.constant(0.5, dataType: x.dataType)
+        let one = mpsGraph.constant(1.0, dataType: x.dataType)
+        let sqrt2 = mpsGraph.constant(sqrt(2.0), dataType: x.dataType)
+        
+        let x0 = mpsGraph.multiplication(consume half, x, name: nil)
+        
+        let x1 = mpsGraph.division(consume x, consume sqrt2, name: nil)
+        let erf = mpsGraph.erf(with: consume x1, name: nil)
+        let erf0 = mpsGraph.addition(consume erf, consume one, name: nil)
+        
+        let y = mpsGraph.multiplication(consume x0, consume erf0, name: nil)
+        return graph.tensor(consume y)
+    }
 }
 
 @available(iOS 15.0, *)

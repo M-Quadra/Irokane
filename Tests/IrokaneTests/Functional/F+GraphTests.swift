@@ -128,4 +128,22 @@ struct FunctionalGraphTests {
             -0.11247356, 0.01, 0.13247356,
         ])
     }
+    
+    @available(iOS 15.4, *)
+    @Test("F.gelu(x)")
+    func gelu() throws {
+        let graph = Irokane.Graph()
+        let x = graph.arange(end: 6, dtype: .float32)
+            .reshape([1, 2, 3])
+        
+        let y = F.gelu(x)
+        
+        let yData = try y.tensorData()
+        let arr = try yData.ik.toFloat32s()
+        #expect(yData.shape == [1, 2, 3])
+        #expect(arr == [
+            0.0, 0.8413447, 1.9544997,
+            2.9959502, 3.9998732, 4.9999986
+        ])
+    }
 }
