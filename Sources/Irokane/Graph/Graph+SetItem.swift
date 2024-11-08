@@ -17,6 +17,13 @@ enum Subscript {
 public extension Graph.Tensor { struct Sub: ~Copyable {
     let base: UnsafeMutablePointer<Graph.Tensor>
     let sub: Subscript
+#if !DEBUG // compiler bug?
+    init(base: consuming UnsafeMutablePointer<Graph.Tensor>, sub: consuming Subscript) {
+        self.base = base
+        self.sub = sub
+        self.base.pointee.tensor.isKind(of: MPSGraphTensor.self)
+    }
+#endif
 }}
 
 // replace `=`
