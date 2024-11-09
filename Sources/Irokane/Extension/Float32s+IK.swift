@@ -9,61 +9,38 @@ import Accelerate
 
 infix operator **
 
-extension [Float32] {
+package extension [Float32] {
     
     static func ** (lhs: [Float32], rhs: UInt) -> [Float32] {
         var lhs = lhs, arr = [Float32](repeating: 1, count: lhs.count), n = rhs
         while n > 0 {
             if n & 1 == 1 {
-                vDSP_vmul(lhs, 1, arr, 1, &arr, 1, vDSP_Length(lhs.count))
+                vDSP.multiply(lhs, arr, result: &arr)
             }
             n >>= 1
-            vDSP_vsq(lhs, 1, &lhs, 1, vDSP_Length(lhs.count))
+            vDSP.square(lhs, result: &lhs)
         }
         return arr
     }
     
     static func - (lhs: [Float32], rhs: Float32) -> [Float32] {
-        var lhs = lhs
-        vDSP_vsadd(lhs, 1, [-rhs], &lhs, 1, vDSP_Length(lhs.count))
-        return lhs
+        return vDSP.add(-rhs, lhs)
     }
-}
-
-extension [Float32] {
-    var ik: Wrapper<[Float32]> { Wrapper(base: self) }
     
-    var mean: Float32 {
-        var mean: Float32 = 0
-        vDSP_meanv(self, 1, &mean, vDSP_Length(self.count))
-        return mean
-    }
+    var mean: Float32 { vDSP.mean(self) }
     
     var std: Float32 {
+        if #available(iOS 18.0, *) { return vDSP.standardDeviation(self) }
+        
         var mean: Float32 = 0
         var stddev: Float32 = 0
         vDSP_normalize(self, 1, nil, 1, &mean, &stddev, vDSP_Length(self.count))
         return stddev
     }
     
-    var sum: Float32 {
-        var sum: Float32 = 0
-        vDSP_sve(self, 1, &sum, vDSP_Length(self.count))
-        return sum
-    }
-}
-
-extension Wrapper<[Float32]> {
+    var sum: Float32 { vDSP.sum(self) }
     
-    var min: Float32 {
-        var min: Float32 = 0
-        vDSP_minv(self.base, 1, &min, vDSP_Length(self.base.count))
-        return min
-    }
+    var min: Float32 { vDSP.minimum(self) }
     
-    var max: Float32 {
-        var max: Float32 = 0
-        vDSP_maxv(self.base, 1, &max, vDSP_Length(self.base.count))
-        return max
-    }
+    var max: Float32 { vDSP.maximum(self) }
 }

@@ -35,6 +35,9 @@ public extension Graph.Tensor {
         let step = xData.shape.last?.intValue ?? 1
         
         switch xData.dataType {
+        case .float16:
+            let arr = try! xData.ik.toFloat16s().toFloat32s()
+            printFloat32s(consume arr, step: step, isFull: isFull)
         case .float32:
             let arr = try! xData.ik.toFloat32s()
             printFloat32s(consume arr, step: step, isFull: isFull)
@@ -78,7 +81,7 @@ fileprivate func joinLine(_ line: [String], isFull: Bool) -> String {
 fileprivate func printFloat32s(_ arr: borrowing [Float32], step: Int, isFull: Bool) {
     if arr.isEmpty { return }
     print(String(format: "mean: %.4f sum: %.4f", arr.mean, arr.sum))
-    print(String(format: "min: %.4f max: %.4f", arr.ik.min, arr.ik.max))
+    print(String(format: "min: %.4f max: %.4f", arr.min, arr.max))
     
     var lines = [String]()
     for i in stride(from: 0, to: arr.count, by: step) {
