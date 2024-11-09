@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Irokane
+import Irokane
 import CoreML
 import MetalPerformanceShadersGraph
 
@@ -82,7 +82,7 @@ struct GraphSetItem {
         )[x.tensor] else { throw Errors.msg("empty result") }
         #expect(xData.shape == [1, 2])
         
-        let arr = try xData.toFloat32s()
+        let arr = try xData.ik.toFloat32s()
         #expect(arr == [0.5, 2])
     }
     
@@ -102,7 +102,7 @@ struct GraphSetItem {
         )[x.tensor] else { throw Errors.msg("empty result") }
         #expect(xData.shape == [1, 2])
         
-        let arr = try xData.toFloat32s()
+        let arr = try xData.ik.toFloat32s()
         #expect(arr == [0.5, 2])
     }
     

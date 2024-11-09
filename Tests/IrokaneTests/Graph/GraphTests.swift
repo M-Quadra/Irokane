@@ -151,7 +151,7 @@ struct GraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [2])
         
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(arr == [0, 1])
     }
     
@@ -171,7 +171,7 @@ struct GraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [3])
         
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(arr == [1.0, 2.7182817, 7.3890557])
     }
     
@@ -190,7 +190,7 @@ struct GraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [3])
         
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(arr == [1, 2, 3])
     }
     
@@ -332,7 +332,7 @@ struct GraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [2, 3])
         
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(abs(arr.mean) < 0.1)
         #expect(abs(arr.std - 1) < 0.26)
     }

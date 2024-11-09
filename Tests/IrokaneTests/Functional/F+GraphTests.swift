@@ -101,7 +101,7 @@ struct FunctionalGraphTests {
         let y = F.layerNorm(x)
         
         let yData = try y.tensorData()
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(yData.shape == [2, 3])
         #expect(arr == [
             -1.2247356, 0.0, 1.2247356,
@@ -121,7 +121,7 @@ struct FunctionalGraphTests {
         let y = F.layerNorm(x, weight: w, bias: b)
         
         let yData = try y.tensorData()
-        let arr = try yData.toFloat32s()
+        let arr = try yData.ik.toFloat32s()
         #expect(yData.shape == [2, 3])
         #expect(arr == [
             -0.11247356, 0.01, 0.13247356,
