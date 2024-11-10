@@ -19,14 +19,17 @@ struct ConvolutionTests {
             .cast(to: .float32)
             .reshape([2, 3, 1])
         let b = try MLMultiArray([Float32](repeating: 0.5, count: 2)).ik.to(graph: graph)
-        let conv1d = Conv1d(weight: w, bias: b)
+        let conv1d = Conv1d(
+            weight: w, bias: b,
+            inChannels: 3, outChannels: 2
+        )
         #expect(conv1d.inChannels == 3)
         #expect(conv1d.outChannels == 2)
         
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .cast(to: .float32)
             .reshape([1, 3, 2])
-        let y = try conv1d.forward(x)
+        let y = conv1d.forward(x)
         
         let yData = try y.tensorData()
         #expect(yData.shape == [1, 2, 2])
@@ -46,13 +49,16 @@ struct ConvolutionTests {
             .ik.to(graph: graph)
         let b = try MLMultiArray(shape: [3], dataType: .float32)
             .ik.to(graph: graph)
-        let conv1d = Conv1d(weight: w, bias: b)
+        let conv1d = Conv1d(
+            weight: w, bias: b,
+            inChannels: 3, outChannels: 3
+        )
         #expect(conv1d.inChannels == 3)
         #expect(conv1d.outChannels == 3)
         
         let x = try MLMultiArray(shape: [1, 3, 5], dataType: .float32)
             .ik.to(graph: graph)
-        let y = try conv1d.forward(x)
+        let y = conv1d.forward(x)
         
         let yData = try y.tensorData()
         #expect(yData.shape == [1, 3, 5])
@@ -65,13 +71,14 @@ struct ConvolutionTests {
         let w = graph.arange(end: 15, dtype: .float32)
             .reshape([5, 1, 3])
         let b = graph.zeros(5).cast(to: .float32) + 0.5
-        let conv1d = Conv1d(weight: w, bias: b, groups: 5)
-        #expect(conv1d.inChannels == 5)
-        #expect(conv1d.outChannels == 5)
+        let conv1d = Conv1d(
+            weight: w, bias: b,
+            inChannels: 5, outChannels: 5, kernelSize: 3, groups: 5
+        )
         
         let x = graph.arange(end: 15, dtype: .float32)
             .reshape([1, 5, 3])
-        let y = try conv1d.forward(x)
+        let y = conv1d.forward(x)
         
         let yData = try y.tensorData()
         let arr = try yData.ik.toFloat32s()
@@ -86,13 +93,16 @@ struct ConvolutionTests {
         let w = graph.arange(end: 15, dtype: .float32)
             .reshape([5, 1, 3])
         let b = graph.zeros(5).cast(to: .float32) + 0.5
-        let conv1d = Conv1d(weight: w, bias: b, groups: 5, padding: 1)
+        let conv1d = Conv1d(
+            weight: w, bias: b,
+            inChannels: 5, outChannels: 5, groups: 5, padding: 1
+        )
         #expect(conv1d.inChannels == 5)
         #expect(conv1d.outChannels == 5)
         
         let x = graph.arange(end: 15, dtype: .float32)
             .reshape([1, 5, 3])
-        let y = try conv1d.forward(x)
+        let y = conv1d.forward(x)
         
         let yData = try y.tensorData()
         let arr = try yData.ik.toFloat32s()

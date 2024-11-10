@@ -10,31 +10,36 @@ fileprivate typealias F = Irokane.Functional
 
 @available(iOS 15.4, *)
 public struct Conv1d {
-    
     let weight: MPSGraphTensor
     let bias: MPSGraphTensor
     let groups: Int
     let padding: Int
-    
-    init(
-        weight: MPSGraphTensor, // [out, in, kernel]
-        bias: MPSGraphTensor, // [out]
-        groups: Int,
-        padding: Int
-    ) {
-        let mpsGraph = weight.operation.graph
-        self.weight = mpsGraph.expandDims(consume weight, axis: -1, name: nil)
-        self.bias = mpsGraph.expandDims(consume bias, axis: -1, name: nil)
-        self.groups = groups
-        self.padding = padding
-    }
 }
 
 @available(iOS 15.4, *)
 public extension Conv1d {
     
-    init(weight: borrowing Graph.Tensor, bias: borrowing Graph.Tensor, groups: Int = 1, padding: Int = 0) {
-        self.init(weight: weight.tensor, bias: bias.tensor, groups: groups, padding: padding)
+    init(
+        weight: borrowing Graph.Tensor, // [out, in, kernel]
+        bias: borrowing Graph.Tensor, // [out]
+        inChannels: Int? = nil,
+        outChannels: Int? = nil,
+        kernelSize: Int? = nil,
+        groups: Int = 1,
+        padding: Int = 0
+    ) {
+        let mpsGraph = weight.graph.mpsGraph, w = weight.tensor, b = bias.tensor
+        assert(mpsGraph == bias.graph.mpsGraph)
+        assert(w.dataType == b.dataType)
+        
+        self.weight = mpsGraph.expandDims(consume w, axis: -1, name: nil)
+        self.bias = mpsGraph.expandDims(consume b, axis: -1, name: nil)
+        self.groups = groups
+        self.padding = padding
+        
+        if let outChannels = outChannels { assert(self.outChannels == outChannels) }
+        if let inChannels = inChannels { assert(self.inChannels == inChannels) }
+        if let kernelSize = kernelSize { assert(self.kernelSize == kernelSize) }
     }
     
     var outChannels: Int? {
@@ -49,7 +54,8 @@ public extension Conv1d {
         return shape[2].intValue
     }
     
-    func forward(_ input: borrowing Graph.Tensor) throws -> Graph.Tensor {
+    func forward(_ input: borrowing Graph.Tensor) -> Graph.Tensor {
+        let graph = input.graph, mpsGraph = graph.mpsGraph
         guard let des = MPSGraphConvolution2DOpDescriptor(
             strideInX: 1, strideInY: 1,
             dilationRateInX: 1, dilationRateInY: 1,
@@ -57,8 +63,7 @@ public extension Conv1d {
             paddingStyle: .explicit,
             dataLayout: .NCHW,
             weightsLayout: .OIHW
-        ) else { throw Errors.msg("MPSGraphConvolution2DOpDescriptor") }
-        let graph = input.graph, mpsGraph = graph.mpsGraph
+        ) else { preconditionFailure("MPSGraphConvolution2DOpDescriptor") }
         let xp = if self.padding > 0 {
             F.pad(input, pad: (left: self.padding, right: self.padding)).tensor
         } else { input.tensor }
@@ -66,6 +71,8 @@ public extension Conv1d {
         
         let x0 = mpsGraph.convolution2D(x, weights: self.weight, descriptor: consume des, name: nil)
         let x1 = mpsGraph.squeeze(consume x0, axis: -1, name: nil)
+        
+        assert(x1.dataType == self.bias.dataType)
         let y = mpsGraph.addition(consume x1, self.bias, name: nil)
         return graph.tensor(consume y)
     }
