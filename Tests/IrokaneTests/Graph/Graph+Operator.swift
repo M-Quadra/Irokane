@@ -30,47 +30,78 @@ struct GraphOperator {
     
     @available(iOS 15.4, *)
     @Test("a * x")
-    func multiplication0() throws {
+    func mul0() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y = 2 * x
         
         let yData = try y.tensorData()
-        #expect(yData.shape == [6])
-        
         let arr = try yData.ik.toInt32s()
+        #expect(yData.shape == [6])
         #expect(arr == [0, 2, 4, 6, 8, 10])
     }
     @available(iOS 15.4, *)
     @Test("x * a")
-    func multiplication1() throws {
+    func mul1() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
         
         let y = x * 2
         
         let yData = try y.tensorData()
-        #expect(yData.shape == [6])
-        
         let arr = try yData.ik.toInt32s()
+        #expect(yData.shape == [6])
         #expect(arr == [0, 2, 4, 6, 8, 10])
     }
     
     @available(iOS 15.4, *)
     @Test("x * y")
-    func multiply() throws {
-        let graph = Graph()
+    func mul2() throws {
+        let graph = Irokane.Graph()
         let x = try MLMultiArray(0..<3).ik.to(graph: graph)
         let y = try MLMultiArray(1..<4).ik.to(graph: graph)
         
         let z = x * y
         
         let zData = try z.tensorData()
-        #expect(zData.shape == [3])
-        
         let arr = try zData.ik.toInt32s()
+        #expect(zData.shape == [3])
         #expect(arr == [0, 2, 6])
+    }
+    
+    @available(iOS 15.4, *)
+    @Test("x * mask")
+    func mul3() throws {
+        let graph = Irokane.Graph()
+        let x = graph.arange(end: 3)
+        let m = try MLMultiArray([
+            0, 1, 0
+        ]).ik.to(graph: graph)
+        
+        let y = x * m
+        
+        let yData = try y.tensorData()
+        let arr = try yData.ik.toInt32s()
+        #expect(yData.shape == [3])
+        #expect(arr == [0, 1, 0])
+    }
+    
+    @available(iOS 15.4, *)
+    @Test("mask * x")
+    func mul4() throws {
+        let graph = Irokane.Graph()
+        let x = graph.arange(end: 3)
+        let m = try MLMultiArray([
+            0, 1, 0
+        ]).ik.to(graph: graph)
+
+        let y = m * x
+
+        let yData = try y.tensorData()
+        let arr = try yData.ik.toInt32s()
+        #expect(yData.shape == [3])
+        #expect(arr == [0, 1, 0])
     }
     
     @available(iOS 15.4, *)

@@ -70,11 +70,16 @@ public extension Graph.Tensor {
     
     // x * y
     static func * (lhs: borrowing Graph.Tensor, rhs: borrowing Graph.Tensor) -> Graph.Tensor {
-        let graph = lhs.graph.mpsGraph, x = lhs.tensor
-        assert(graph == rhs.graph.mpsGraph)
+        let graph = lhs.graph, mpsGraph = graph.mpsGraph
+        let x = lhs.tensor, y = rhs.tensor
+        if #available(iOS 15.0, *) {
+            assert(x.dataType == rhs.tensor.dataType || x.dataType == .bool || y.dataType == .bool)
+        } else {
+            assert(x.dataType == rhs.tensor.dataType)
+        }
         
-        let y = graph.multiplication(consume x, rhs.tensor, name: nil)
-        return Graph.Tensor(graph: lhs.graph, tensor: consume y)
+        let z = mpsGraph.multiplication(consume x, consume y, name: nil)
+        return graph.tensor(consume z)
     }
     
     // a + x
