@@ -295,7 +295,7 @@ struct GraphTests {
         )[z.tensor] else { throw Errors.msg("empty result") }
         #expect(zData.shape == [2, 2])
         
-        let arr = try zData.toFloat16s()
+        let arr = try zData.ik.toFloat16s()
         #expect(arr == [19, 22, 43, 50])
     }
     

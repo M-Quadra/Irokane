@@ -92,12 +92,4 @@ extension MPSGraphTensorData {
         default: throw .todo("\(self.dataType)")
         }
     }
-    
-    func toFloat16s() throws(Errors) -> [Float16] {
-        if self.dataType != .float16 { throw .msg("\(self.dataType)") }
-        let cnt = self.shape.map { $0.intValue }.reduce(1, *)
-        var arr = [Float16](repeating: -.greatestFiniteMagnitude, count: cnt)
-        self.mpsndarray().readBytes(&arr, strideBytes: nil)
-        return arr
-    }
 }

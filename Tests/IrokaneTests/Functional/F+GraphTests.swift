@@ -65,7 +65,7 @@ struct FunctionalGraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [2, 3])
         
-        let arr = try yData.toFloat16s()
+        let arr = try yData.ik.toFloat16s()
         #expect(arr == [
             0.09, 0.2448, 0.665,
             0.09, 0.2448, 0.665
@@ -87,7 +87,7 @@ struct FunctionalGraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [3])
         
-        let arr = try yData.toFloat16s()
+        let arr = try yData.ik.toFloat16s()
         #expect(arr == [0.6567, 1.5, 2.5])
     }
     
