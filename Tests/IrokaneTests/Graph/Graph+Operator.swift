@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import Irokane
+import Irokane
 import CoreML
 
 @Suite("Graph Operator")

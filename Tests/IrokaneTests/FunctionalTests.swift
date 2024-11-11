@@ -1,22 +1,22 @@
 //
-//  F+GraphTests.swift
+//  FunctionalTests.swift
 //
 //
 //  Created by m_quadra on 2024/7/2.
 //
 
 import Testing
-@testable import Irokane
+import Irokane
 import CoreML
-import MetalPerformanceShadersGraph
 
 fileprivate typealias F = Irokane.Functional
 
-@Suite("Graph F.")
-struct FunctionalGraphTests {
+@Suite("F.")
+struct FunctionalTests {
     
     @available(iOS 16.0, *)
-    @Test func pad0() async throws {
+    @Test("F.pad(x, pad=[3, 4])")
+    func pad0() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(shape: [1, 2], dataType: .float16).ik.to(graph: graph)
         
@@ -29,8 +29,10 @@ struct FunctionalGraphTests {
         )[y.tensor] else { throw Errors.msg("empty result") }
         #expect(yData.shape == [1, 9])
     }
+    
     @available(iOS 15.4, *)
-    @Test func pad1() async throws {
+    @Test("F.pad(x, pad=[0, 0, 1, 0, 0, 0])")
+    func pad1() throws {
         let graph = Irokane.Graph()
         let x = try MLMultiArray(1...6).ik.to(graph: graph)
             .reshape([1, 3, 2])
@@ -50,7 +52,7 @@ struct FunctionalGraphTests {
     }
     
     @available(iOS 15.4, *)
-    @Test func softmax() async throws {
+    @Test func softmax() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<6).ik.to(graph: graph)
             .cast(to: .float16)
@@ -73,7 +75,7 @@ struct FunctionalGraphTests {
     }
     
     @available(iOS 15.4, *)
-    @Test func softplus() async throws {
+    @Test func softplus() throws {
         let graph = Graph()
         let x = try MLMultiArray(0..<3).ik.to(graph: graph)
             .cast(to: .float16) + 0.5

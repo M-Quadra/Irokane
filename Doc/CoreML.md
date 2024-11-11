@@ -1,10 +1,10 @@
 # CoreML
 
-非常原始，非常粗糙。
+要啥没啥，爱咋咋地。
 
-内部细节缺失，[coremltools](https://github.com/apple/coremltools)维护频率低下，算子降级频繁，十分甚至九分的难用。
+内部细节缺失，算子降级频繁，十分甚至九分的难用。
 
-想找替代品，时间不允许，只好抛砖引玉。
+想找替代品，时间不允许，纯抛砖引玉。
 
 以下内容均以 torch 为前提，虽然 CoreML 一股 FT 味（恼
 
@@ -22,7 +22,7 @@ Neural Engine，本文称NPU，下同。
 
 加速降级大抵遵循 NPU、GPU、CPU，依次降级。实际中多为 NPU/GPU 直降 CPU 且大概率升不回来。例如某模型分 ab 2个部分，a部分转换后为 CPU-only，b部分转换后可用 GPU 加速。此时若为偷懒合并ab输入输出，则模型整体直接被降级为 CPU-only。
 
-辣么何时降级捏？[MIL ops 文档](https://apple.github.io/coremltools/source/coremltools.converters.mil.mil.ops.defs.html)没说，[CoreML 文档](https://developer.apple.com/documentation/coreml/)没提。
+辣么何时降级捏？[MIL ops 文档](https://apple.github.io/coremltools/source/coremltools.converters.mil.mil.ops.defs.html)没说，[CoreML 文档](https://developer.apple.com/documentation/coreml/)没提，只能自己测。
 
 
 

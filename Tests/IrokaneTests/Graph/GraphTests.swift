@@ -6,9 +6,8 @@
 //
 
 import Testing
-@testable import Irokane
+import Irokane
 import CoreML
-import MetalPerformanceShadersGraph
 
 @Suite("Graph")
 struct GraphTests {
