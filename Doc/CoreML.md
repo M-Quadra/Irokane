@@ -77,3 +77,81 @@ def f0(x: torch.Tensor) -> torch.Tensor:
   return x
 ```
 
+
+
+### shape获取
+
+追踪后会被转常量，可能引发后续 shape 异常。
+
+coremltools 中 ops.py
+
+```python
+@register_torch_op(torch_alias=["listunpack"])
+def tupleunpack(context, node):
+```
+
+shape 支持异常，缺少对应处理，加上后大概正常。
+
+```python
+if values.op.op_type == "shape":
+    for i in range(len(node.outputs)):
+        val = _list_select(values, i)
+        context.add(val, node.outputs[i])
+    return
+```
+
+精神萎靡，不想测试。哪天 coremltools 修复后可以删掉这段。
+
+
+
+个人实践是直接改写 script。
+
+```python
+class Model(nn.Module):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if not torch.jit.is_tracing():
+            a, b, _ = x.shape
+            return torch.zeros([a, b], dtype=torch.float16)
+        
+        @torch.jit.script_if_tracing
+        def _zeros(x):
+            a, b = x.size(0), x.size(1)
+            return torch.zeros([a, b], dtype=torch.float16)
+        return _zeros(x)
+```
+
+
+
+### 切片操作
+
+问题很大，看起来涉及到转换的 pipeline，放弃研究。
+
+比下这类操作都有问题:
+
+```python
+class Model(nn.Module):
+    def forward(self, x):
+        x[..., -1] += 1 
+        return x
+```
+
+需要自己根据固定维度做等价替换。
+
+
+
+## 关于效率
+
+- fp16
+
+  无脑 fp16 就对了，纸面数据来说 iPhone GPU fp16 比 fp32 强到不知道哪去了。实际上 fp16 影响有限，但终归是有用的。
+
+- 8bit
+
+  最大的收益是权重体积减半，推理速度约等于不变。毕竟 op 都是 fp16，疯狂 cast 罢了（悲
+
+- MPSGraph 改写
+
+  取 shape 之类的小中断续到 GPU 上速度能快一些，不适合 GPU 的 op 强人所难不如让 CoreML 安心 CPU。
+
+  非纯计算或 I/O 操作多了，GPU 打不过 CPU + vDSP。
+

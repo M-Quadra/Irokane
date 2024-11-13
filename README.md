@@ -1,54 +1,83 @@
 # Irokane
 
-移植torch模型时被CoreML各种报错与龟速推理难到了。
+MPSGraph DSL，辅助建图。
 
-原始网络暴力修改，推理速度感人。遭遇 CPU-only op，后续推理也连带降级，回不去哩。
 
-如果最终锁死CPU，解决转换问题的等价替换纯属自欺欺人。MIL Ops文档完全没有op细节，还被Xcode 16预告会显示op无法加速原因给骗了，甚至有直接隐藏 CPU-only op的bug，血压暴涨。
+
+移植 torch 模型至 CoreML 后，遭遇各类 CPU-only op 与推理加速降级。
+
+一气之下想强上 GPU，瞅了眼 MPSGraph，不顺手。
 
 好累，不想爱了。
 
 > 不行，云老婆就是我所有的爱。
 
-思来想去只能手动拆模型，CPU only部分使用MPS重写。
+手动拆模型，实现是重写 CPU-only 部分积攒的。精神不佳，太监可能。
 
-随缘开发，精神不佳，太监可能。
+就结果而言，大体与我的人生一样失败。
 
-
-
-妄图找到上 MPS 的临界点，但肝不动，没空。
-
-x86 mac某些op运行有问题，不知后续是否会碰到更多。唉，想换arm mac。（钱包：不，你不想。
+开源献丑。
 
 
 
-被迫资瓷一点卷积，权重加载还未考虑好如何设计。
+## 导入说明
+
+仅支持 SwiftPM，建议最低兼容 iOS17。
 
 
 
-- 动态图模式
+## 快速开始
 
-  初见宣传觉饼香，上手立刻就骂娘。
+- 输入输出
 
-  MLTensor 看起来像 BNNS 封装，op支持有限。MPS op支持更好，但如此实现 IO 代价太高。
+```swift
+import Irokane
 
-  预想的调试优点无法覆盖高额人力成本。庸碌如我，无法搞定。
-
-  func 干扰太难受，有余力再开新坑。
-
-- 静态图模式
-
-  MPS计算图构建DSL，基于torch。
-
-  原始方法太难用，权重加载还未考虑好，目前只作为 CoreML 补充，先这样吧。
-
-  GPU瓶颈如何分析？
-
-- [名字没想好](./Doc/CoreML.md)（针对coremltools的实现替换）
-
-  类似速查手册，可能完全不实现。
-
-  替换后也是一个一个一个 CPU-only，那不白替换了？
+func forward(x: MLMultiArray) throws -> MLMultiArray {
+    let graph = Irokane.Graph()
+    
+    let x = try x.ik.to(graph: graph)
+    let y = x + 1
+    
+    return try y.tensorData().ik.toMLMultiArray()
+}
+```
 
 
+
+- Functional 引用
+
+```swift
+import Irokane
+fileprivate typealias F = Irokane.Functional
+
+let y = F.pad(x, pad: (3, 4))
+let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
+let y = F.softmax(x, dim: -1)
+```
+
+
+
+- 切片操作
+
+```swift
+x[mask] .= y
+x[..., 1] .= 2
+// x[..., None] >= y
+x[..., .none] >= y
+// x[:, :-1]
+x[.all, ..<(-1)]
+```
+
+
+
+## 其他文档
+
+随缘施工。
+
+[Irokane.Graph](./Doc/Graph.md)
+
+[CoreML 踩坑记录](./Doc/CoreML.md)
+
+[MPSGraph 踩坑记录](./Doc/MPSGraph.md)
 

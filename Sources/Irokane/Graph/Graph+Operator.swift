@@ -73,9 +73,9 @@ public extension Graph.Tensor {
         let graph = lhs.graph, mpsGraph = graph.mpsGraph
         let x = lhs.tensor, y = rhs.tensor
         if #available(iOS 15.0, *) {
-            assert(x.dataType == rhs.tensor.dataType || x.dataType == .bool || y.dataType == .bool)
+            assert(x.dataType == y.dataType || x.dataType == .bool || y.dataType == .bool)
         } else {
-            assert(x.dataType == rhs.tensor.dataType)
+            assert(x.dataType == y.dataType)
         }
         
         let z = mpsGraph.multiplication(consume x, consume y, name: nil)
