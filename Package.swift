@@ -11,8 +11,9 @@ let package = Package(
     ],
     targets: [
         .target(name: "Irokane"),
-        .testTarget(name: "IrokaneTests", dependencies: ["Irokane"]),
-        .testTarget(name: "IssueTests", dependencies: ["Irokane"]),
-        .testTarget(name: "RealDeviceTests", dependencies: ["Irokane"]),
+        .target(name: "TestUtil"),
+        .testTarget(name: "IrokaneTests", dependencies: ["Irokane", "TestUtil"]),
+        .testTarget(name: "IssueTests", dependencies: ["Irokane", "TestUtil"]),
+        .testTarget(name: "RealDeviceTests", dependencies: ["Irokane", "TestUtil"]),
     ]
 )

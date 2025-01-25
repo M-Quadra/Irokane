@@ -8,6 +8,7 @@
 import Testing
 import Irokane
 import CoreML
+import TestUtil
 
 @Suite("Graph")
 struct GraphTests {
@@ -171,7 +172,7 @@ struct GraphTests {
         #expect(yData.shape == [3])
         
         let arr = try yData.ik.toFloat32s()
-        #expect(arr == [1.0, 2.7182817, 7.3890557])
+        compare(arr, [1.0, 2.7182817, 7.3890557])
     }
     
     @available(iOS 15.4, *)
