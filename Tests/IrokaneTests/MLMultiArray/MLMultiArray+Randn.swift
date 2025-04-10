@@ -113,6 +113,6 @@ struct RandnPerformanceTests {
             _ = try MLMultiArray.BoxMuller.fp32(shape: [i as NSNumber])
         }
         let sec = Date().timeIntervalSince(st)
-        #expect(0.1..<0.9 ~= sec)
+        #expect(0.05..<0.5 ~= sec)
     }
 }
