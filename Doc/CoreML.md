@@ -122,11 +122,11 @@ class Model(nn.Module):
 
 
 
-### 切片操作
+### 原地操作
 
-问题很大，看起来涉及到转换的 pipeline，放弃研究。
+带有 inplace op 的 IR 会导致 coremltools 错误转换。
 
-比下这类操作都有问题:
+如下这类操作都有问题:
 
 ```python
 class Model(nn.Module):
@@ -135,9 +135,36 @@ class Model(nn.Module):
         return x
 ```
 
-需要自己根据固定维度做等价替换。
+让 coremltools pipeline 主动检测 inplace op, 感觉会拉高不少复杂度, 等一个好心人给官方PR。
 
+现阶段依然得修改原model, 然后交给 torch.export 导出 Core Aten IR。
 
+```python
+import coremltools as ct
+from typing import Final
+
+class Model(nn.Module):
+    def forward(self, x):
+        x = x.clone()
+        x[..., -1] += 1 
+        return x
+
+from torch.export import Dim
+exported_program = torch.export.export_for_inference(
+    mod=Model().eval(), 
+    args=(x,),
+    dynamic_shapes={"x": (1, 3, Dim("var_dim", min=1, max=10_000))},
+)
+
+var_dim: Final[ct.RangeDim] = ct.RangeDim(1, 10_000)
+model_from_export = ct.convert(
+    exported_program,
+    inputs=[ct.TensorType(name="x", shape=ct.Shape([1, 3, var_dim]))],
+)
+model_from_export.save("tmp.mlpackage")
+```
+
+虽然能正确转换`mlpackage`, 但仍会因 CPU-only op 导致模型被整体降级 CPU。
 
 ## 关于效率
 

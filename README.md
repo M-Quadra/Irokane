@@ -45,7 +45,7 @@ func forward(x: MLMultiArray) throws -> MLMultiArray {
 
 
 
-- Functional 引用
+- Functional 支持
 
 ```swift
 import Irokane
@@ -56,19 +56,24 @@ let y = F.pad(x, pad: [(0, 0), (1, 0), (0, 0)])
 let y = F.softmax(x, dim: -1)
 ```
 
-
-
 - 切片操作
+
+```swift
+// x[..., None] >= y
+x[..., .none] >= y
+
+// x[:, :-1]
+let y = x[.all, ..<(-1)]
+```
+
+- 原地操作
 
 ```swift
 x[mask] .= y
 x[..., 1] .= 2
-// x[..., None] >= y
-x[..., .none] >= y
-// x[:, :-1]
-x[.all, ..<(-1)]
 ```
 
+由于操作符重载限制, `=` 赋值使用 `.=` 定义。
 
 
 ## 其他文档
