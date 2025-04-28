@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@testable import Irokane
+import Irokane
 import CoreML
 
 fileprivate func jarqueBera(_ arr: [Float]) -> Float {

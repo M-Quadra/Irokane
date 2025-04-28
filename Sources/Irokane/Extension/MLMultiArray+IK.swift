@@ -55,7 +55,7 @@ public extension Wrapper<MLMultiArray> {
 }
 
 @available(iOS 15.4, *)
-extension MLMultiArray {
+package extension MLMultiArray {
     
     func toFloat32s() throws(Errors) -> [Float32] {
         if self.dataType != .float32 { throw .msg("\(self.dataType)") }

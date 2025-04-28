@@ -27,9 +27,11 @@ public extension MLMultiArray {
 }
 
 @available(iOS 16.0, *)
-extension MLMultiArray { struct BNNS {
-    fileprivate init() {}
-    
+package extension MLMultiArray { struct BNNS {
+    private init() {}
+}}
+@available(iOS 16.0, *)
+package extension MLMultiArray.BNNS {
     static func fp32(shape: consuming [NSNumber], mean: Float32 = 0, std: Float32 = 1) throws -> MLMultiArray {
         let arr = try MLMultiArray(shape: shape, dataType: .float32)
         let cnt = arr.count
@@ -64,12 +66,14 @@ extension MLMultiArray { struct BNNS {
         }
         return arr
     }
-}}
+}
 
 @available(iOS 15.4, *)
-extension MLMultiArray { struct MPS {
-    fileprivate init() {}
-    
+package extension MLMultiArray { struct MPS {
+    private init() {}
+}}
+@available(iOS 15.4, *)
+package extension MLMultiArray.MPS {
     static func fp32(shape: [NSNumber], seed: Int = .random(in: 0..<Int.max)) throws -> MLMultiArray {
         guard let op = MPSGraphRandomOpDescriptor(distribution: .normal, dataType: .float32) else { fatalError() }
         op.samplingMethod = .boxMuller
@@ -92,11 +96,12 @@ extension MLMultiArray { struct MPS {
         if !ok { throw Errors.msg("readBytes failed") }
         return arr
     }
-}}
+}
 
-extension MLMultiArray { struct BoxMuller {
-    fileprivate init() {}
-    
+package extension MLMultiArray { struct BoxMuller {
+    private init() {}
+}}
+package extension MLMultiArray.BoxMuller {
     static func fp32(shape: consuming [NSNumber]) throws -> MLMultiArray {
         let arr = try MLMultiArray(shape: shape, dataType: .float32)
         let cnt = arr.count
@@ -120,4 +125,4 @@ extension MLMultiArray { struct BoxMuller {
         }
         return arr
     }
-}}
+}
