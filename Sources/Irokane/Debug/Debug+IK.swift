@@ -5,27 +5,9 @@
 //  Created by m_quadra on 2024/10/31.
 //
 
-import CoreML
+import ObjectiveC
 
 #if DEBUG
-public extension Wrapper<MLMultiArray> {
-    consuming func debug() {
-        let arr = self.base
-        print("dtype:", arr.dataType)
-        print("shape:", arr.shape)
-        if arr.count <= 0 { return }
-        
-        let step = arr.shape.last?.intValue ?? 1
-        for i in stride(from: 0, to: arr.count, by: step) {
-            var values = [Float32]()
-            for j in 0..<step {
-                values.append(arr[i + j].floatValue)
-            }
-            print(consume values)
-        }
-    }
-}
-
 @available(iOS 15.0, *)
 public extension Graph.Tensor {
     consuming func debug(isFull: Bool = false) {
