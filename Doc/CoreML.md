@@ -83,27 +83,6 @@ def f0(x: torch.Tensor) -> torch.Tensor:
 
 追踪后会被转常量，可能引发后续 shape 异常。
 
-coremltools 中 ops.py
-
-```python
-@register_torch_op(torch_alias=["listunpack"])
-def tupleunpack(context, node):
-```
-
-shape 支持异常，缺少对应处理，加上后大概正常。
-
-```python
-if values.op.op_type == "shape":
-    for i in range(len(node.outputs)):
-        val = _list_select(values, i)
-        context.add(val, node.outputs[i])
-    return
-```
-
-精神萎靡，不想测试。哪天 coremltools 修复后可以删掉这段。
-
-
-
 个人实践是直接改写 script。
 
 ```python
@@ -181,4 +160,6 @@ model_from_export.save("tmp.mlpackage")
   取 shape 之类的小中断续到 GPU 上速度能快一些，不适合 GPU 的 op 强人所难不如让 CoreML 安心 CPU。
 
   非纯计算或 I/O 操作多了，GPU 打不过 CPU + vDSP。
+
+  MetalPerformanceShadersGraph 太过高级且计算图优化不行，手写计算图无论性能还是效率皆无收益。
 
